@@ -1,0 +1,14 @@
+[package]
+name = "lm_mcp_server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", features = ["json", "gzip", "brotli"] }
+scraper = "0.19"
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+mcp-protocol-sdk = "0.2"
+serde_json = "1"
+async-trait = "0.1"
