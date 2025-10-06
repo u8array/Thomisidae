@@ -1,19 +1,16 @@
 
 use anyhow::Result;
+use jsonrpc_v2::{Data, Error as RpcError, Params, ResponseObjects, Server};
+use mcp_protocol_sdk::prelude::ToolHandler;
 use reqwest::Client;
 use serde::Deserialize;
 use serde_json::json;
-use jsonrpc_v2::{Data, Error as RpcError, Server, Params, ResponseObjects};
 use std::collections::HashMap;
+use std::io::{self, BufWriter, Write};
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
-use std::io::{self, Write, BufWriter};
-mod tools;
-mod tool_meta;
-use tools::{FetchLinksHandler, FetchTextHandler};
-use mcp_protocol_sdk::prelude::ToolHandler;
 
-use crate::tool_meta::{ToolMeta, ToolsMeta};
+use lm_mcp_server::{FetchLinksHandler, FetchTextHandler, ToolMeta, ToolsMeta};
 
 
 #[derive(Clone)]
