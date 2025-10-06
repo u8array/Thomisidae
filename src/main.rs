@@ -3,7 +3,7 @@ use reqwest::Client;
 use mcp_protocol_sdk::prelude::*;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::io::{self, Write};
+use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
 
 mod tools;
@@ -11,6 +11,8 @@ mod tool_meta;
 use tools::{FetchLinksHandler, FetchTextHandler};
 mod initialize;
 use initialize::maybe_respond_to_initialize;
+mod response;
+use response::{write_response_error, write_response_result};
 
 use crate::tool_meta::{ToolMeta, ToolInputSchema, ToolsMeta};
 
@@ -45,13 +47,9 @@ async fn main() -> Result<()> {
     let stdin = BufReader::new(tokio::io::stdin());
     let mut lines = stdin.lines();
 
-    enum HandlerKind {
-        FetchText(FetchTextHandler),
-        FetchLinks(FetchLinksHandler),
-    }
-    let mut handlers: HashMap<String, HandlerKind> = HashMap::new();
-    handlers.insert("fetch_url_text".to_string(), HandlerKind::FetchText(fetch_text_handler));
-    handlers.insert("fetch_page_links".to_string(), HandlerKind::FetchLinks(fetch_links_handler));
+    let mut handlers: HashMap<String, Arc<dyn ToolHandler + Send + Sync>> = HashMap::new();
+    handlers.insert("fetch_url_text".to_string(), Arc::new(fetch_text_handler));
+    handlers.insert("fetch_page_links".to_string(), Arc::new(fetch_links_handler));
 
     while let Some(line) = lines.next_line().await? {
         let trimmed = line.trim();
@@ -63,10 +61,10 @@ async fn main() -> Result<()> {
             Err(_) => continue,
         };
 
-        let method = msg.get("method").and_then(|m| m.as_str()).map(|s| s.to_string());
+        let method = msg.get("method").and_then(Value::as_str);
         let id = msg.get("id").cloned();
 
-        match method.as_deref() {
+        match method {
             Some("initialize") => {
                 let result = json!({
                     "protocolVersion": "2025-06-18",
@@ -74,64 +72,37 @@ async fn main() -> Result<()> {
                     "capabilities": { "tools": { "listChanged": false } }
                 });
                 if let Some(idv) = id {
-                    let resp = json!({ "jsonrpc": "2.0", "id": idv, "result": result });
-                    let mut stdout = io::stdout();
-                    writeln!(stdout, "{}", resp.to_string())?;
-                    stdout.flush()?;
+                    write_response_result(idv, result)?;
                 }
             }
             Some("tools/list") => {
                 if let Some(idv) = id {
-                    let res = json!({ "tools": tools_meta.0 });
-                    let resp = json!({ "jsonrpc": "2.0", "id": idv, "result": res });
-                    let mut stdout = io::stdout();
-                    writeln!(stdout, "{}", resp.to_string())?;
-                    stdout.flush()?;
+                    let res = json!({ "tools": &tools_meta.0 });
+                    write_response_result(idv, res)?;
                 }
             }
             Some("tools/call") => {
                 let params = msg.get("params").cloned().unwrap_or(json!({}));
-                let name = params.get("name").and_then(|n| n.as_str()).map(|s| s.to_string());
+                let name = params.get("name").and_then(Value::as_str);
                 let arguments = params.get("arguments").cloned().unwrap_or(json!({}));
                 if let (Some(tool_name), Some(idv)) = (name, id) {
-                    if let Some(handler) = handlers.remove(&tool_name) {
+                    if let Some(handler) = handlers.get(tool_name) {
                         let arg_map: HashMap<String, Value> = serde_json::from_value(arguments).unwrap_or_default();
 
-                        let result_val = match handler {
-                            HandlerKind::FetchText(h) => {
-                                match h.call(arg_map).await {
-                                    Ok(tr) => serde_json::to_value(tr).unwrap_or(json!(null)),
-                                    Err(e) => json!({ "error": e.to_string() }),
-                                }
-                            }
-                            HandlerKind::FetchLinks(h) => {
-                                match h.call(arg_map).await {
-                                    Ok(tr) => serde_json::to_value(tr).unwrap_or(json!(null)),
-                                    Err(e) => json!({ "error": e.to_string() }),
-                                }
-                            }
+                        let result_val = match handler.call(arg_map).await {
+                            Ok(tr) => serde_json::to_value(tr).unwrap_or(json!(null)),
+                            Err(e) => json!({ "error": e.to_string() }),
                         };
 
-                        let resp = json!({ "jsonrpc": "2.0", "id": idv, "result": result_val });
-                        let mut stdout = io::stdout();
-                        writeln!(stdout, "{}", resp.to_string())?;
-                        stdout.flush()?;
+                        write_response_result(idv, result_val)?;
                     } else {
-                        let err = json!({ "code": -32601, "message": "Tool not found" });
-                        let resp = json!({ "jsonrpc": "2.0", "id": idv, "error": err });
-                        let mut stdout = io::stdout();
-                        writeln!(stdout, "{}", resp.to_string())?;
-                        stdout.flush()?;
+                        write_response_error(idv, -32601, "Tool not found")?;
                     }
                 }
             }
             _ => {
                 if let Some(idv) = id {
-                    let err = json!({ "code": -32601, "message": "Method not found" });
-                    let resp = json!({ "jsonrpc": "2.0", "id": idv, "error": err });
-                    let mut stdout = io::stdout();
-                    writeln!(stdout, "{}", resp.to_string())?;
-                    stdout.flush()?;
+                    write_response_error(idv, -32601, "Method not found")?;
                 }
             }
         }
