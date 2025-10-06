@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use super::state::{AppState, CallParams};
 
 pub async fn initialize(
-    _: Params<()>,
+    _: Params<serde_json::Value>,
     _data: Data<AppState>,
 ) -> Result<serde_json::Value, RpcError> {
     Ok(json!({
@@ -17,7 +17,7 @@ pub async fn initialize(
 }
 
 pub async fn tools_list(
-    _: Params<()>,
+    _: Params<serde_json::Value>,
     data: Data<AppState>,
 ) -> Result<serde_json::Value, RpcError> {
     Ok(json!({ "tools": &data.tools_meta.0 }))

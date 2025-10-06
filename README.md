@@ -41,58 +41,23 @@ The server implements the MCP initialization and the `tools/list` and `tools/cal
 ## LM Studio integration (short)
 
 1. Build the binary (see Build).
-2. In LM Studio: create a new external tool (MCP) and set the command to start the compiled EXE (for example `C:\path\to\lm_mcp_server.exe`). LM Studio will launch the binary and communicate over STDIO.
+2. Configure the MCP server in LM Studio. You can either:
+     - Use the integrations JSON (recommended), e.g. in your LM Studio settings:
+
+         ```json
+         {
+             "mcpServers": {
+                 "url-fetcher": {
+                     "command": "path/to/your/lm_mcp_server"
+                 }
+             }
+         }
+         ```
+
+         Notes:
+         - On Windows JSON, backslashes must be escaped (`\\`).
+         - After editing the config, restart LM Studio for changes to take effect.
+
+     - Or add it via the LM Studio UI as an external MCP tool and point it to the compiled EXE.
+
 3. LM Studio will perform the MCP handshake and call `tools/list`. After that it can send `tools/call` requests for available tools.
-
-Example: `tools/list` (to check available tools)
-
-```json
-{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}
-```
-
-Example: `tools/call` (fetch links)
-
-```json
-{
-    "jsonrpc": "2.0",
-    "id": 2,
-    "method": "tools/call",
-    "params": {
-        "name": "fetch_page_links",
-        "arguments": { "url": "https://example.com" }
-    }
-}
-```
-
-Example response:
-
-```json
-{
-    "jsonrpc": "2.0",
-    "id": 2,
-    "result": {
-        "links": ["https://example.com/about", "https://example.com/contact"]
-    }
-}
-```
-
-## Tool contract
-
-Short description of tools (Inputs / Outputs / Errors):
-
-- fetch_url_text
-  - Input: { "url": string, optional: { "max_chars": number } }
-  - Output: { "text": string }
-  - Errors: HTTP error, timeout, invalid-url -> return an MCP error response
-
-- fetch_page_links
-  - Input: { "url": string }
-  - Output: { "links": [string] }
-  - Errors: same as above
-
-Edge cases:
-
-- empty/missing URL
-- invalid scheme (e.g. ftp://, file://)
-- very large responses
-- redirect loops or too many redirects
