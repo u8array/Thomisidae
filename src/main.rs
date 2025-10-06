@@ -7,6 +7,7 @@ use jsonrpc_v2::{Data, Error as RpcError, Server, Params, ResponseObjects};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
+use std::io::{self, Write, BufWriter};
 mod tools;
 mod tool_meta;
 use tools::{FetchLinksHandler, FetchTextHandler};
@@ -99,6 +100,8 @@ async fn main() -> Result<()> {
 
     let stdin = BufReader::new(tokio::io::stdin());
     let mut lines = stdin.lines();
+    let stdout = io::stdout();
+    let mut out = BufWriter::new(stdout.lock());
 
     while let Some(line) = lines.next_line().await? {
         let trimmed = line.trim();
@@ -107,17 +110,13 @@ async fn main() -> Result<()> {
         }
         let response = server.handle(trimmed.as_bytes()).await;
         match response {
-            ResponseObjects::One(obj) => {
-                if let Ok(s) = serde_json::to_string(&obj) {
-                    println!("{}", s);
+            ResponseObjects::Empty => {}
+            other => {
+                if let Ok(s) = serde_json::to_string(&other) {
+                    let _ = writeln!(out, "{}", s);
+                    let _ = out.flush();
                 }
             }
-            ResponseObjects::Many(list) => {
-                if let Ok(s) = serde_json::to_string(&list) {
-                    println!("{}", s);
-                }
-            }
-            _ => {}
         }
     }
 
