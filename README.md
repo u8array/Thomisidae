@@ -5,6 +5,7 @@
 I am currently working on this project. Planned short-term tasks:
 
 - [ ] Optimize response text (truncation, filtering, clearer formatting)
+- [ ] Release build
 
 
 This small MCP (Model Context Protocol) STDIO server binary is intended to provide controlled web access to LM Studio models
