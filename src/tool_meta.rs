@@ -1,7 +1,7 @@
 use serde::Serialize;
 use serde_json::Value;
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ToolInputSchema {
     #[serde(rename = "type")]
@@ -20,7 +20,7 @@ impl Default for ToolInputSchema {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ToolMeta {
     pub name: String,
@@ -29,7 +29,7 @@ pub struct ToolMeta {
     pub input_schema: ToolInputSchema,
 }
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Clone)]
 #[serde(transparent)]
 pub struct ToolsMeta(pub Vec<ToolMeta>);
 
