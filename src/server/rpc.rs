@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use super::state::{AppState, CallParams};
 
-pub async fn initialize(_: Params<serde_json::Value>, _data: Data<AppState>) -> Result<serde_json::Value, RpcError> {
+pub async fn initialize(_: Params<()>, _data: Data<AppState>) -> Result<serde_json::Value, RpcError> {
     Ok(json!({
         "protocolVersion": "2025-06-18",
         "serverInfo": { "name": "url-fetcher", "version": "0.1.0" },
@@ -13,7 +13,7 @@ pub async fn initialize(_: Params<serde_json::Value>, _data: Data<AppState>) -> 
     }))
 }
 
-pub async fn tools_list(_: Params<serde_json::Value>, data: Data<AppState>) -> Result<serde_json::Value, RpcError> {
+pub async fn tools_list(_: Params<()>, data: Data<AppState>) -> Result<serde_json::Value, RpcError> {
     Ok(json!({ "tools": &data.tools_meta.0 }))
 }
 
