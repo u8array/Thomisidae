@@ -1,5 +1,12 @@
 # lm_mcp_server
 
+!!! WIP — in progress !!!
+
+I am currently working on this project. Planned short-term tasks:
+
+- [ ] Optimize response text (truncation, filtering, clearer formatting)
+
+
 This small MCP (Model Context Protocol) STDIO server binary is intended to provide controlled web access to LM Studio models
 
 In short: instead of giving a model unrestricted internet access, this server exposes a small set of well-defined, safer tools over MCP/STDIO that fetch HTTP content or extract links. That lets the host application (for example LM Studio) retain control over requests, filtering and auditing.
