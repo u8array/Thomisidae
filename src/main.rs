@@ -7,13 +7,15 @@ use std::io::{self, Write};
 use tokio::io::{AsyncBufReadExt, BufReader};
 
 mod tools;
+mod tool_meta;
 use tools::{FetchLinksHandler, FetchTextHandler};
 mod initialize;
 use initialize::maybe_respond_to_initialize;
 
+use crate::tool_meta::{ToolMeta, ToolInputSchema};
+
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Respond early if the very first line is an initialize request (same behavior as before)
     maybe_respond_to_initialize()?;
 
     let client = Client::new();
@@ -21,26 +23,28 @@ async fn main() -> Result<()> {
     let fetch_links_handler = FetchLinksHandler { client: client.clone() };
 
     let mut tools_meta: Vec<Value> = Vec::new();
-    tools_meta.push(json!({
-        "name": "fetch_url_text",
-        "title": "Fetch URL Text",
-        "description": "Fetches the text content of a URL",
-        "inputSchema": {
-            "type": "object",
-            "properties": { "url": { "type": "string" } },
-            "required": ["url"]
-        }
-    }));
-    tools_meta.push(json!({
-        "name": "fetch_page_links",
-        "title": "Fetch Page Links",
-        "description": "Fetches links from a page",
-        "inputSchema": {
-            "type": "object",
-            "properties": { "url": { "type": "string" } },
-            "required": ["url"]
-        }
-    }));
+    let fetch_url_text_meta = ToolMeta {
+        name: "fetch_url_text".to_string(),
+        title: "Fetch URL Text".to_string(),
+        description: "Fetches the text content of a URL".to_string(),
+        input_schema: ToolInputSchema {
+            type_: "object".to_string(),
+            properties: json!({ "url": { "type": "string" } }),
+            required: vec!["url".to_string()],
+        },
+    };
+    let fetch_page_links_meta = ToolMeta {
+        name: "fetch_page_links".to_string(),
+        title: "Fetch Page Links".to_string(),
+        description: "Fetches links from a page".to_string(),
+        input_schema: ToolInputSchema {
+            type_: "object".to_string(),
+            properties: json!({ "url": { "type": "string" } }),
+            required: vec!["url".to_string()],
+        },
+    };
+    tools_meta.push(serde_json::to_value(fetch_url_text_meta).unwrap());
+    tools_meta.push(serde_json::to_value(fetch_page_links_meta).unwrap());
 
     let stdin = BufReader::new(tokio::io::stdin());
     let mut lines = stdin.lines();
