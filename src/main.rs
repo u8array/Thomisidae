@@ -1,92 +1,20 @@
 use anyhow::Result;
 use reqwest::Client;
 use mcp_protocol_sdk::prelude::*;
-use serde::{Serialize, Deserialize};
 use serde_json::Value;
-use std::io::{self, Write, BufRead};
 use std::collections::HashMap;
+use std::io::{self, Write};
 use tokio::io::{AsyncBufReadExt, BufReader};
-use std::sync::mpsc;
-use std::time::Duration;
 
 mod tools;
 use tools::{FetchLinksHandler, FetchTextHandler};
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct ServerInfo {
-    name: String,
-    version: String,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Capabilities {
-    tools: ToolsCapability,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct ToolsCapability {
-    list_changed: bool,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct InitializeResult {
-    protocol_version: String,
-    server_info: ServerInfo,
-    capabilities: Capabilities,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct JsonRpcResponse<T> {
-    jsonrpc: String,
-    id: Value,
-    result: T,
-}
+mod initialize;
+use initialize::maybe_respond_to_initialize;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-
-    let (tx, rx) = mpsc::channel();
-    std::thread::spawn(move || {
-        let stdin = io::stdin();
-        let mut lock = stdin.lock();
-        let mut line = String::new();
-        let _ = lock.read_line(&mut line);
-        let _ = tx.send(line);
-    });
-
-    if let Ok(buffer) = rx.recv_timeout(Duration::from_millis(500)) {
-        let trimmed = buffer.trim();
-        if !trimmed.is_empty() {
-            if let Ok(val) = serde_json::from_str::<Value>(trimmed) {
-                if val.get("method").and_then(|m| m.as_str()) == Some("initialize") {
-                        let id = val.get("id").cloned().unwrap_or(Value::Number(1.into()));
-                        let result = InitializeResult {
-                            protocol_version: "2025-06-18".to_string(),
-                            server_info: ServerInfo {
-                                name: "url-fetcher".to_string(),
-                                version: "0.1.0".to_string(),
-                            },
-                            capabilities: Capabilities {
-                                tools: ToolsCapability { list_changed: false },
-                            },
-                        };
-                        let resp = JsonRpcResponse {
-                            jsonrpc: "2.0".to_string(),
-                            id,
-                            result,
-                        };
-                        let mut stdout = io::stdout();
-                        writeln!(stdout, "{}", serde_json::to_string(&resp)?)?;
-                        stdout.flush()?;
-                }
-            }
-        }
-    }
+    // Respond early if the very first line is an initialize request (same behavior as before)
+    maybe_respond_to_initialize()?;
 
     let client = Client::new();
     let fetch_text_handler = FetchTextHandler { client: client.clone() };
