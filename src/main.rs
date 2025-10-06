@@ -4,16 +4,15 @@ use reqwest::Client;
 use serde::Deserialize;
 use serde_json::json;
 use jsonrpc_v2::{Data, Error as RpcError, Server, Params, ResponseObjects};
-use std::sync::Arc;
 use std::collections::HashMap;
+use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
 
 mod tools;
 mod tool_meta;
 use tools::{FetchLinksHandler, FetchTextHandler};
 use mcp_protocol_sdk::prelude::ToolHandler;
-mod initialize;
-use initialize::maybe_respond_to_initialize;
+// The MCP initialize handshake is handled via the JSON-RPC method below; no separate stdin shim needed.
 
 use crate::tool_meta::{ToolMeta, ToolInputSchema, ToolsMeta};
 
@@ -44,18 +43,15 @@ async fn tools_list(_: Params<serde_json::Value>, data: Data<AppState>) -> Resul
     Ok(json!({ "tools": &data.tools_meta.0 }))
 }
 
-async fn tools_call(params: Params<serde_json::Value>, data: Data<AppState>) -> Result<serde_json::Value, RpcError> {
-    let raw = params.0;
-    let parsed: CallParams = match serde_json::from_value(raw.clone()) {
-        Ok(cp) => cp,
-        Err(_) => CallParams::default(),
-    };
-    let name = parsed.name;
-    let arguments = if parsed.arguments.is_null() { serde_json::json!({}) } else { parsed.arguments };
-    let arg_map: HashMap<String, serde_json::Value> = serde_json::from_value(arguments).unwrap_or_default();
+async fn tools_call(params: Params<CallParams>, data: Data<AppState>) -> Result<serde_json::Value, RpcError> {
+    let CallParams { name, arguments } = params.0;
     if name.is_empty() {
         return Err(RpcError::internal("Missing 'name' in params"));
     }
+
+    let arguments = if arguments.is_null() { json!({}) } else { arguments };
+    let arg_map: HashMap<String, serde_json::Value> = serde_json::from_value(arguments)
+        .map_err(|e| RpcError::internal(format!("Invalid 'arguments': {e}")))?;
 
     if let Some(handler) = data.handlers.get(&name) {
         match handler.call(arg_map).await {
@@ -69,8 +65,6 @@ async fn tools_call(params: Params<serde_json::Value>, data: Data<AppState>) -> 
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    maybe_respond_to_initialize()?;
-
     let client = Client::new();
     let fetch_text_handler = Arc::new(FetchTextHandler { client: client.clone() });
     let fetch_links_handler = Arc::new(FetchLinksHandler { client: client.clone() });
@@ -92,8 +86,8 @@ async fn main() -> Result<()> {
     let tools_meta = ToolsMeta(vec![fetch_url_text_meta, fetch_page_links_meta]);
 
     let mut handlers: HashMap<String, Arc<dyn ToolHandler + Send + Sync>> = HashMap::new();
-    handlers.insert("fetch_url_text".to_string(), fetch_text_handler.clone() as Arc<dyn ToolHandler + Send + Sync>);
-    handlers.insert("fetch_page_links".to_string(), fetch_links_handler.clone() as Arc<dyn ToolHandler + Send + Sync>);
+    handlers.insert("fetch_url_text".into(), fetch_text_handler as Arc<dyn ToolHandler + Send + Sync>);
+    handlers.insert("fetch_page_links".into(), fetch_links_handler as Arc<dyn ToolHandler + Send + Sync>);
 
     let state = AppState {
         tools_meta,

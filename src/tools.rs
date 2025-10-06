@@ -27,7 +27,7 @@ impl ToolHandler for FetchTextHandler {
             .await
             .map_err(|e| mcp_protocol_sdk::McpError::internal(e.to_string()))?;
         let doc = Html::parse_document(&html);
-        let sel = Selector::parse("body").unwrap();
+    let sel = Selector::parse("body").map_err(|e| McpError::internal(e.to_string()))?;
         let text = doc
             .select(&sel)
             .map(|n| n.text().collect::<Vec<_>>().join(" "))
@@ -64,7 +64,7 @@ impl ToolHandler for FetchLinksHandler {
             .await
             .map_err(|e| mcp_protocol_sdk::McpError::internal(e.to_string()))?;
         let doc = Html::parse_document(&html);
-        let a = Selector::parse("a[href]").unwrap();
+    let a = Selector::parse("a[href]").map_err(|e| McpError::internal(e.to_string()))?;
         let links: Vec<String> = doc
             .select(&a)
             .filter_map(|el| el.value().attr("href").map(|s| s.to_string()))
