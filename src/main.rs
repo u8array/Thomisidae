@@ -7,14 +7,12 @@ use jsonrpc_v2::{Data, Error as RpcError, Server, Params, ResponseObjects};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, BufReader};
-
 mod tools;
 mod tool_meta;
 use tools::{FetchLinksHandler, FetchTextHandler};
 use mcp_protocol_sdk::prelude::ToolHandler;
-// The MCP initialize handshake is handled via the JSON-RPC method below; no separate stdin shim needed.
 
-use crate::tool_meta::{ToolMeta, ToolInputSchema, ToolsMeta};
+use crate::tool_meta::{ToolMeta, ToolsMeta};
 
 
 #[derive(Clone)]
@@ -69,19 +67,17 @@ async fn main() -> Result<()> {
     let fetch_text_handler = Arc::new(FetchTextHandler { client: client.clone() });
     let fetch_links_handler = Arc::new(FetchLinksHandler { client: client.clone() });
 
-    let fetch_url_text_meta = ToolMeta::builder()
-        .name("fetch_url_text")
-        .title("Fetch URL Text")
-        .description("Fetches the text content of a URL")
-        .input_schema(ToolInputSchema::default())
-        .build();
+    let fetch_url_text_meta = ToolMeta::new_with_default_schema(
+        "fetch_url_text",
+        "Fetch URL Text",
+        "Fetches the text content of a URL",
+    );
 
-    let fetch_page_links_meta = ToolMeta::builder()
-        .name("fetch_page_links")
-        .title("Fetch Page Links")
-        .description("Fetches links from a page")
-        .input_schema(ToolInputSchema::default())
-        .build();
+    let fetch_page_links_meta = ToolMeta::new_with_default_schema(
+        "fetch_page_links",
+        "Fetch Page Links",
+        "Fetches links from a page",
+    );
 
     let tools_meta = ToolsMeta(vec![fetch_url_text_meta, fetch_page_links_meta]);
 

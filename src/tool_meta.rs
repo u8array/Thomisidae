@@ -45,42 +45,12 @@ impl Default for ToolMeta {
 }
 
 impl ToolMeta {
-    pub fn builder() -> ToolMetaBuilder {
-        ToolMetaBuilder::default()
-    }
-}
-
-#[derive(Default)]
-pub struct ToolMetaBuilder {
-    name: String,
-    title: String,
-    description: String,
-    input_schema: Option<ToolInputSchema>,
-}
-
-impl ToolMetaBuilder {
-    pub fn name(mut self, name: &str) -> Self {
-        self.name = name.to_string();
-        self
-    }
-    pub fn title(mut self, title: &str) -> Self {
-        self.title = title.to_string();
-        self
-    }
-    pub fn description(mut self, description: &str) -> Self {
-        self.description = description.to_string();
-        self
-    }
-    pub fn input_schema(mut self, input_schema: ToolInputSchema) -> Self {
-        self.input_schema = Some(input_schema);
-        self
-    }
-    pub fn build(self) -> ToolMeta {
-        ToolMeta {
-            name: self.name,
-            title: self.title,
-            description: self.description,
-            input_schema: self.input_schema.unwrap_or_else(ToolInputSchema::default),
+    pub fn new_with_default_schema(name: &str, title: &str, description: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            title: title.to_string(),
+            description: description.to_string(),
+            input_schema: ToolInputSchema::default(),
         }
     }
 }
