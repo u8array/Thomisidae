@@ -5,7 +5,10 @@ use std::collections::HashMap;
 
 use super::state::{AppState, CallParams};
 
-pub async fn initialize(_: Params<()>, _data: Data<AppState>) -> Result<serde_json::Value, RpcError> {
+pub async fn initialize(
+    _: Params<()>,
+    _data: Data<AppState>,
+) -> Result<serde_json::Value, RpcError> {
     Ok(json!({
         "protocolVersion": "2025-06-18",
         "serverInfo": { "name": "url-fetcher", "version": "0.1.0" },
@@ -13,17 +16,27 @@ pub async fn initialize(_: Params<()>, _data: Data<AppState>) -> Result<serde_js
     }))
 }
 
-pub async fn tools_list(_: Params<()>, data: Data<AppState>) -> Result<serde_json::Value, RpcError> {
+pub async fn tools_list(
+    _: Params<()>,
+    data: Data<AppState>,
+) -> Result<serde_json::Value, RpcError> {
     Ok(json!({ "tools": &data.tools_meta.0 }))
 }
 
-pub async fn tools_call(params: Params<CallParams>, data: Data<AppState>) -> Result<serde_json::Value, RpcError> {
+pub async fn tools_call(
+    params: Params<CallParams>,
+    data: Data<AppState>,
+) -> Result<serde_json::Value, RpcError> {
     let CallParams { name, arguments } = params.0;
     if name.is_empty() {
         return Err(RpcError::internal("Missing 'name' in params"));
     }
 
-    let arguments = if arguments.is_null() { json!({}) } else { arguments };
+    let arguments = if arguments.is_null() {
+        json!({})
+    } else {
+        arguments
+    };
     let arg_map: HashMap<String, serde_json::Value> = serde_json::from_value(arguments)
         .map_err(|e| RpcError::internal(format!("Invalid 'arguments': {e}")))?;
 

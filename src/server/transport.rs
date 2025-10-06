@@ -2,13 +2,18 @@ use anyhow::Result;
 use jsonrpc_v2::{Data, ResponseObjects, Server};
 use reqwest::Client;
 use std::io::{self, BufWriter, Write};
+use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, BufReader};
 
 use super::rpc;
 use super::setup::build_state;
 
 pub async fn run() -> Result<()> {
-    let client = Client::new();
+    let client = Client::builder()
+        .timeout(Duration::from_secs(10))
+        .redirect(reqwest::redirect::Policy::limited(10))
+        .user_agent("lm_mcp_server/0.1.0")
+        .build()?;
     let state = build_state(&client);
 
     let server = Server::new()

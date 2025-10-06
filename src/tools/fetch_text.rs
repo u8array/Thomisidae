@@ -15,7 +15,9 @@ impl ToolHandler for FetchTextHandler {
         let url = arguments
             .get("url")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| mcp_protocol_sdk::McpError::validation("Missing 'url' parameter".to_string()))?;
+            .ok_or_else(|| {
+                mcp_protocol_sdk::McpError::validation("Missing 'url' parameter".to_string())
+            })?;
 
         let html = self
             .client
@@ -35,7 +37,10 @@ impl ToolHandler for FetchTextHandler {
             .join("\n");
 
         Ok(ToolResult {
-            content: vec![Content::Text { text, annotations: None }],
+            content: vec![Content::Text {
+                text,
+                annotations: None,
+            }],
             is_error: Some(false),
             meta: None,
         })

@@ -1,4 +1,3 @@
-
 use anyhow::Result;
 use lm_mcp_server::server;
 

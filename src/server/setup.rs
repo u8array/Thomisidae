@@ -8,8 +8,12 @@ use crate::{FetchLinksHandler, FetchTextHandler, ToolMeta, ToolsMeta};
 use super::state::AppState;
 
 pub fn build_state(client: &Client) -> AppState {
-    let fetch_text_handler = Arc::new(FetchTextHandler { client: client.clone() });
-    let fetch_links_handler = Arc::new(FetchLinksHandler { client: client.clone() });
+    let fetch_text_handler = Arc::new(FetchTextHandler {
+        client: client.clone(),
+    });
+    let fetch_links_handler = Arc::new(FetchLinksHandler {
+        client: client.clone(),
+    });
 
     let fetch_url_text_meta = ToolMeta::new_with_default_schema(
         "fetch_url_text",
@@ -26,8 +30,17 @@ pub fn build_state(client: &Client) -> AppState {
     let tools_meta = ToolsMeta(vec![fetch_url_text_meta, fetch_page_links_meta]);
 
     let mut handlers: HashMap<String, Arc<dyn ToolHandler + Send + Sync>> = HashMap::new();
-    handlers.insert("fetch_url_text".into(), fetch_text_handler as Arc<dyn ToolHandler + Send + Sync>);
-    handlers.insert("fetch_page_links".into(), fetch_links_handler as Arc<dyn ToolHandler + Send + Sync>);
+    handlers.insert(
+        "fetch_url_text".into(),
+        fetch_text_handler as Arc<dyn ToolHandler + Send + Sync>,
+    );
+    handlers.insert(
+        "fetch_page_links".into(),
+        fetch_links_handler as Arc<dyn ToolHandler + Send + Sync>,
+    );
 
-    AppState { tools_meta, handlers }
+    AppState {
+        tools_meta,
+        handlers,
+    }
 }

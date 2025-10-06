@@ -15,7 +15,9 @@ impl ToolHandler for FetchLinksHandler {
         let url = arguments
             .get("url")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| mcp_protocol_sdk::McpError::validation("Missing 'url' parameter".to_string()))?;
+            .ok_or_else(|| {
+                mcp_protocol_sdk::McpError::validation("Missing 'url' parameter".to_string())
+            })?;
 
         let html = self
             .client
@@ -33,10 +35,14 @@ impl ToolHandler for FetchLinksHandler {
             .filter_map(|el| el.value().attr("href").map(|s| s.to_string()))
             .collect();
 
-        let json_text = serde_json::to_string(&links).map_err(|e| McpError::internal(e.to_string()))?;
+        let json_text =
+            serde_json::to_string(&links).map_err(|e| McpError::internal(e.to_string()))?;
 
         Ok(ToolResult {
-            content: vec![Content::Text { text: json_text, annotations: None }],
+            content: vec![Content::Text {
+                text: json_text,
+                annotations: None,
+            }],
             is_error: Some(false),
             meta: None,
         })
