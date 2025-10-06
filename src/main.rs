@@ -1,7 +1,7 @@
 use anyhow::Result;
 use reqwest::Client;
 use mcp_protocol_sdk::prelude::*;
-use serde_json::json;
+use serde::{Serialize, Deserialize};
 use serde_json::Value;
 use std::io::{self, Write, BufRead};
 use std::collections::HashMap;
@@ -12,8 +12,44 @@ use std::time::Duration;
 mod tools;
 use tools::{FetchLinksHandler, FetchTextHandler};
 
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ServerInfo {
+    name: String,
+    version: String,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Capabilities {
+    tools: ToolsCapability,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ToolsCapability {
+    list_changed: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct InitializeResult {
+    protocol_version: String,
+    server_info: ServerInfo,
+    capabilities: Capabilities,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct JsonRpcResponse<T> {
+    jsonrpc: String,
+    id: Value,
+    result: T,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
+
     let (tx, rx) = mpsc::channel();
     std::thread::spawn(move || {
         let stdin = io::stdin();
@@ -28,25 +64,25 @@ async fn main() -> Result<()> {
         if !trimmed.is_empty() {
             if let Ok(val) = serde_json::from_str::<Value>(trimmed) {
                 if val.get("method").and_then(|m| m.as_str()) == Some("initialize") {
-                    let id = val.get("id").cloned().unwrap_or(Value::Number(1.into()));
-                    let result = json!({
-                        "protocolVersion": "2025-06-18",
-                        "serverInfo": {
-                            "name": "url-fetcher",
-                            "version": "0.1.0"
-                        },
-                        "capabilities": {
-                            "tools": { "listChanged": false }
-                        }
-                    });
-                    let resp = json!({
-                        "jsonrpc": "2.0",
-                        "id": id,
-                        "result": result
-                    });
-                    let mut stdout = io::stdout();
-                    writeln!(stdout, "{}", resp.to_string())?;
-                    stdout.flush()?;
+                        let id = val.get("id").cloned().unwrap_or(Value::Number(1.into()));
+                        let result = InitializeResult {
+                            protocol_version: "2025-06-18".to_string(),
+                            server_info: ServerInfo {
+                                name: "url-fetcher".to_string(),
+                                version: "0.1.0".to_string(),
+                            },
+                            capabilities: Capabilities {
+                                tools: ToolsCapability { list_changed: false },
+                            },
+                        };
+                        let resp = JsonRpcResponse {
+                            jsonrpc: "2.0".to_string(),
+                            id,
+                            result,
+                        };
+                        let mut stdout = io::stdout();
+                        writeln!(stdout, "{}", serde_json::to_string(&resp)?)?;
+                        stdout.flush()?;
                 }
             }
         }
