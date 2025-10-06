@@ -50,7 +50,7 @@ The server implements the MCP initialization and the `tools/list` and `tools/cal
 1. Build or download the binary (see Build).
 2. Configure the MCP server in LM Studio (via the Integrations dialog):
 
-When you click the "Install" button and then choose "Edit mcp.json", LM Studio opens a dialog where you can paste or edit the integrations JSON directly. This is the supported integration method for this tool.
+When you click the "Install" button and then choose "Edit mcp.json", LM Studio opens a dialog where you can paste or edit the integrations JSON directly.
 
 ![LM Studio: Integration dialog](docs/install.png)
 
