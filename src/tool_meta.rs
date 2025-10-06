@@ -20,7 +20,7 @@ impl Default for ToolInputSchema {
     }
 }
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ToolMeta {
     pub name: String,
@@ -32,17 +32,6 @@ pub struct ToolMeta {
 #[derive(Serialize, Default, Clone)]
 #[serde(transparent)]
 pub struct ToolsMeta(pub Vec<ToolMeta>);
-
-impl Default for ToolMeta {
-    fn default() -> Self {
-        ToolMeta {
-            name: String::new(),
-            title: String::new(),
-            description: String::new(),
-            input_schema: ToolInputSchema::default(),
-        }
-    }
-}
 
 impl ToolMeta {
     pub fn new_with_default_schema(name: &str, title: &str, description: &str) -> Self {
