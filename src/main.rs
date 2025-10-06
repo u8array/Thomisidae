@@ -12,7 +12,7 @@ use tools::{FetchLinksHandler, FetchTextHandler};
 mod initialize;
 use initialize::maybe_respond_to_initialize;
 
-use crate::tool_meta::{ToolMeta, ToolInputSchema};
+use crate::tool_meta::{ToolMeta, ToolInputSchema, ToolsMeta};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -22,29 +22,25 @@ async fn main() -> Result<()> {
     let fetch_text_handler = FetchTextHandler { client: client.clone() };
     let fetch_links_handler = FetchLinksHandler { client: client.clone() };
 
-    let mut tools_meta: Vec<Value> = Vec::new();
-    let fetch_url_text_meta = ToolMeta {
-        name: "fetch_url_text".to_string(),
-        title: "Fetch URL Text".to_string(),
-        description: "Fetches the text content of a URL".to_string(),
-        input_schema: ToolInputSchema {
-            type_: "object".to_string(),
-            properties: json!({ "url": { "type": "string" } }),
-            required: vec!["url".to_string()],
-        },
-    };
-    let fetch_page_links_meta = ToolMeta {
-        name: "fetch_page_links".to_string(),
-        title: "Fetch Page Links".to_string(),
-        description: "Fetches links from a page".to_string(),
-        input_schema: ToolInputSchema {
-            type_: "object".to_string(),
-            properties: json!({ "url": { "type": "string" } }),
-            required: vec!["url".to_string()],
-        },
-    };
-    tools_meta.push(serde_json::to_value(fetch_url_text_meta).unwrap());
-    tools_meta.push(serde_json::to_value(fetch_page_links_meta).unwrap());
+    let fetch_url_text_meta = ToolMeta::builder()
+        .name("fetch_url_text")
+        .title("Fetch URL Text")
+        .description("Fetches the text content of a URL")
+        .input_schema(
+            ToolInputSchema::default()
+        )
+        .build();
+
+    let fetch_page_links_meta = ToolMeta::builder()
+        .name("fetch_page_links")
+        .title("Fetch Page Links")
+        .description("Fetches links from a page")
+        .input_schema(
+            ToolInputSchema::default()
+        )
+        .build();
+
+    let tools_meta = ToolsMeta(vec![fetch_url_text_meta, fetch_page_links_meta]);
 
     let stdin = BufReader::new(tokio::io::stdin());
     let mut lines = stdin.lines();
@@ -86,7 +82,7 @@ async fn main() -> Result<()> {
             }
             Some("tools/list") => {
                 if let Some(idv) = id {
-                    let res = json!({ "tools": tools_meta });
+                    let res = json!({ "tools": tools_meta.0 });
                     let resp = json!({ "jsonrpc": "2.0", "id": idv, "result": res });
                     let mut stdout = io::stdout();
                     writeln!(stdout, "{}", resp.to_string())?;
