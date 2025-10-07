@@ -24,25 +24,6 @@ LM Studio can launch and call external tools over MCP. This repository provides 
 - explicit input validation (allow only specific hosts/protocols),
 - rate limiting and timeouts,
 - content filtering (e.g. extract only text, avoid executing scripts),
-- logging/auditing of requests.
-
-## Build
-
-Requires Rust and cargo.
-
-```powershell
-cargo build --release
-```
-
-## Run (server)
-
-Start the server — it will read MCP/JSON-RPC requests from stdin and write responses to stdout:
-
-```powershell
-cargo run --release
-```
-
-The server implements the MCP initialization and the `tools/list` and `tools/call` methods.
 
 ## LM Studio integration (short)
 
@@ -71,5 +52,13 @@ On Windows you must escape backslashes in JSON (for example: `C:\\path\\to\\lm_m
 3. Enable the tool in LM Studio. The application will perform the MCP handshake and call `tools/list`. Once the handshake succeeds, the available tools appear in the integrations/plugins list.
 
 After installation you should see the tools listed as an integration/plugin:
+
+## Build
+
+Requires Rust and cargo.
+
+```powershell
+cargo build --release
+```
 
 ![LM Studio: installed and initialized](docs/installed.png)
