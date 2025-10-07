@@ -1,3 +1,4 @@
+mod error;
 mod rpc;
 mod setup;
 mod state;

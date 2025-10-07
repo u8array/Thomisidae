@@ -4,6 +4,7 @@ use serde_json::json;
 use std::collections::HashMap;
 
 use super::state::{AppState, CallParams};
+use crate::server::error::ToRpcError;
 
 pub async fn initialize(
     _: Params<serde_json::Value>,
@@ -43,7 +44,7 @@ pub async fn tools_call(
     if let Some(handler) = data.handlers.get(&name) {
         match handler.call(arg_map).await {
             Ok(tr) => Ok(serde_json::to_value(tr).unwrap_or(json!(null))),
-            Err(e) => Err(RpcError::internal(e.to_string())),
+            Err(e) => Err(e.to_rpc_error()),
         }
     } else {
         Err(RpcError::internal("Tool not found"))
