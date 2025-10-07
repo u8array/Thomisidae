@@ -53,6 +53,8 @@ On Windows you must escape backslashes in JSON (for example: `C:\\path\\to\\lm_m
 
 After installation you should see the tools listed as an integration/plugin:
 
+![LM Studio: installed and initialized](docs/installed.png)
+
 ## Build
 
 Requires Rust and cargo.
@@ -61,4 +63,3 @@ Requires Rust and cargo.
 cargo build --release
 ```
 
-![LM Studio: installed and initialized](docs/installed.png)
