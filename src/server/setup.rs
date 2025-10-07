@@ -3,7 +3,13 @@ use reqwest::Client;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::{FetchLinksHandler, FetchTextHandler, ToolMeta, ToolsMeta};
+use crate::{
+    FetchLinksHandler,
+    FetchTextHandler,
+    ToolsMeta,
+    fetch_links_meta,
+    fetch_text_meta,
+};
 
 use super::state::AppState;
 
@@ -15,19 +21,8 @@ pub fn build_state(client: &Client) -> AppState {
         client: client.clone(),
     });
 
-    let fetch_url_text_meta = ToolMeta::new_with_default_schema(
-        "fetch_url_text",
-        "Fetch URL Text",
-        "Fetches the text content of a URL",
-    );
 
-    let fetch_page_links_meta = ToolMeta::new_with_default_schema(
-        "fetch_page_links",
-        "Fetch Page Links",
-        "Fetches links from a page",
-    );
-
-    let tools_meta = ToolsMeta(vec![fetch_url_text_meta, fetch_page_links_meta]);
+    let tools_meta = ToolsMeta(vec![fetch_text_meta(), fetch_links_meta()]);
 
     let mut handlers: HashMap<String, Arc<dyn ToolHandler + Send + Sync>> = HashMap::new();
     handlers.insert(

@@ -5,7 +5,22 @@ use scraper::{Html, Selector};
 use serde_json::Value;
 use std::collections::HashMap;
 use super::utils::{fetch_html, required_str_arg, text_tool_result};
+use super::meta::ToolMeta;
+use std::sync::OnceLock;
 
+
+static META: OnceLock<ToolMeta> = OnceLock::new();
+
+pub fn meta() -> ToolMeta {
+    META.get_or_init(|| {
+        ToolMeta::new_with_default_schema(
+            "fetch_url_text",
+            "Fetch URL Text",
+            "Fetches the text content of a URL",
+        )
+    })
+    .clone()
+}
 pub struct FetchTextHandler {
     pub client: Client,
 }
@@ -26,3 +41,4 @@ impl ToolHandler for FetchTextHandler {
         Ok(text_tool_result(text))
     }
 }
+
