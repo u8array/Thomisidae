@@ -10,6 +10,16 @@ pub struct ToolInputSchema {
     pub required: Vec<String>,
 }
 
+impl ToolInputSchema {
+    pub fn new(type_: &str, properties: Value, required: Vec<String>) -> Self {
+        ToolInputSchema {
+            type_: type_.to_string(),
+            properties,
+            required,
+        }
+    }
+}
+
 impl Default for ToolInputSchema {
     fn default() -> Self {
         ToolInputSchema {
@@ -40,6 +50,19 @@ impl ToolMeta {
             title: title.to_string(),
             description: description.to_string(),
             input_schema: ToolInputSchema::default(),
+        }
+    }
+    pub fn new(
+        name: &str,
+        title: &str,
+        description: &str,
+        input_schema: ToolInputSchema,
+    ) -> Self {
+        Self {
+            name: name.to_string(),
+            title: title.to_string(),
+            description: description.to_string(),
+            input_schema,
         }
     }
 }
