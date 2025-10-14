@@ -1,4 +1,4 @@
-# lm_mcp_server
+# rs-mcp-url-fetcher
 
 !!! WIP — in progress !!!
 
