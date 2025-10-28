@@ -4,7 +4,7 @@
 [![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen?logo=dependabot)](https://github.com/u8array/lm_mcp_server/security/dependabot)
 
 
-This small MCP (Model Context Protocol) STDIO server binary is intended to provide controlled web access to LM Studio models
+This small MCP (Model Context Protocol) STDIO server binary provides controlled web access to any MCP-compatible LLM client.
 
 Exposed tools:
 
@@ -14,20 +14,22 @@ Exposed tools:
 
 ## Why this tool?
 
-LM Studio can launch and call external tools over MCP. This repository provides a small, auditable bridge that allows models to retrieve web content.
+Clients that implement the open Model Context Protocol (MCP) can launch and call external tools. This repository provides a small, auditable bridge that allows models to retrieve web content. LM Studio is one such MCP client and is used below as an example.
 
-## LM Studio integration (short)
+## MCP client integration (example: LM Studio)
 
-For detailed setup steps, see the LM Studio MCP documentation: https://lmstudio.ai/docs/app/mcp
+This server works with any MCP-compatible client. The following shows setup in LM Studio as one example.
+
+For detailed LM Studio setup steps, see the LM Studio MCP documentation: https://lmstudio.ai/docs/app/mcp
 
 1. Build or download the binary (see Build).
-2. Configure the MCP server in LM Studio (via the Integrations dialog):
+2. In LM Studio, configure the MCP server (via the Integrations dialog):
 
 When you click the "Install" button and then choose "Edit mcp.json", LM Studio opens a dialog where you can paste or edit the integrations JSON directly.
 
 ![LM Studio: Integration dialog](docs/install.png)
 
-Paste JSON like the following into the dialog and save it. :
+Paste JSON like the following into the dialog and save it:
 
 ```json
 {
@@ -42,13 +44,13 @@ Paste JSON like the following into the dialog and save it. :
 If you already have other tools configured in `mcp.json`, you can add this server without removing them.
 
 
-3. Enable the tool in LM Studio. The application will perform the MCP handshake and call `tools/list`. Once the handshake succeeds, the available tools appear in the integrations/plugins list.
+3. In LM Studio, enable the tool. The application will perform the MCP handshake and call `tools/list`. Once the handshake succeeds, the available tools appear in the integrations/plugins list.
 
 After installation you should see the tools listed as an integration/plugin:
 
 ![LM Studio: installed and initialized](docs/installed.png)
 
-### Tool arguments
+## Tool arguments
 
 - fetch_url_text
     - url (string, required)
