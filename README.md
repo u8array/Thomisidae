@@ -40,6 +40,8 @@ LM Studio can launch and call external tools over MCP. This repository provides 
 
 ## LM Studio integration (short)
 
+For detailed setup steps, see the LM Studio MCP documentation: https://lmstudio.ai/docs/app/mcp
+
 1. Build or download the binary (see Build).
 2. Configure the MCP server in LM Studio (via the Integrations dialog):
 
@@ -53,14 +55,14 @@ Paste JSON like the following into the dialog and save it. :
 {
     "mcpServers": {
         "url-fetcher": {
-            "command": "path/to/your/lm_mcp_server"
+            "command": "path/to/lm_mcp_server"
         }
     }
 }
 ```
 
 If you already have other tools configured in `mcp.json`, you can add this server without removing them.
-On Windows you must escape backslashes in JSON (for example: `C:\\path\\to\\lm_mcp_server.exe`).
+
 
 3. Enable the tool in LM Studio. The application will perform the MCP handshake and call `tools/list`. Once the handshake succeeds, the available tools appear in the integrations/plugins list.
 
