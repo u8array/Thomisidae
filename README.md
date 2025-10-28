@@ -1,7 +1,7 @@
 # rs-mcp-url-fetcher
 
 [![Rust CI](https://github.com/u8array/rs-mcp-url-fetcher/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/u8array/rs-mcp-url-fetcher/actions/workflows/rust.yml)
-[![Dependabot alerts](https://img.shields.io/github/dependabot/alerts/u8array/lm_mcp_server?label=dependabot%20alerts&logo=dependabot)](https://github.com/u8array/lm_mcp_server/security/dependabot)
+[![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen?logo=dependabot)](https://github.com/u8array/lm_mcp_server/security/dependabot)
 
 
 This small MCP (Model Context Protocol) STDIO server binary is intended to provide controlled web access to LM Studio models
