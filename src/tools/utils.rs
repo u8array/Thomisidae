@@ -33,8 +33,10 @@ pub fn text_tool_result<T: Into<String>>(text: T) -> ToolResult {
         content: vec![Content::Text {
             text: text.into(),
             annotations: None,
+            meta: None,
         }],
         is_error: Some(false),
+        structured_content: None,
         meta: None,
     }
 }
