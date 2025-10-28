@@ -29,12 +29,11 @@ pub async fn fetch_html(client: &Client, url: &str) -> McpResult<String> {
         )));
     }
     
-    if let Some(host) = parsed.host_str() {
-        if let Ok(ip) = host.parse::<IpAddr>() {
-            if !is_global_ip(ip) {
-                return Err(McpError::validation("URL host resolves to a non-global IP (blocked)".to_string()));
-            }
-        }
+    if let Some(host) = parsed.host_str()
+        && let Ok(ip) = host.parse::<IpAddr>()
+        && !is_global_ip(ip)
+    {
+        return Err(McpError::validation("URL host resolves to a non-global IP (blocked)".to_string()));
     }
 
     let resp = client
@@ -43,12 +42,12 @@ pub async fn fetch_html(client: &Client, url: &str) -> McpResult<String> {
         .await
         .map_err(|e| McpError::internal(e.to_string()))?;
 
-    if let Some(len) = resp.content_length() {
-        if len as usize > MAX_RESPONSE_BYTES {
-            return Err(McpError::validation(format!(
-                "Response too large: {len} bytes (max {MAX_RESPONSE_BYTES})"
-            )));
-        }
+    if let Some(len) = resp.content_length()
+        && (len as usize > MAX_RESPONSE_BYTES)
+    {
+        return Err(McpError::validation(format!(
+            "Response too large: {len} bytes (max {MAX_RESPONSE_BYTES})"
+        )));
     }
 
     let mut total: usize = 0;
