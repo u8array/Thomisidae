@@ -12,4 +12,5 @@ pub use tools::{
 	fetch_links_meta,
 	fetch_text_meta,
 	google_search_meta,
+    Robots,
 };

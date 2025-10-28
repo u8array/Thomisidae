@@ -1,12 +1,14 @@
 use super::meta::ToolMeta;
 use super::utils::{fetch_html, required_str_arg, text_tool_result};
+use super::robots::Robots;
 use async_trait::async_trait;
 use mcp_protocol_sdk::prelude::*;
 use reqwest::Client;
 use scraper::{Html, Selector};
 use serde_json::Value;
 use std::collections::HashMap;
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
+use url::Url;
 
 static META: OnceLock<ToolMeta> = OnceLock::new();
 
@@ -22,12 +24,17 @@ pub fn meta() -> ToolMeta {
 }
 pub struct FetchTextHandler {
     pub client: Client,
+    pub robots: Arc<Robots>,
 }
 
 #[async_trait]
 impl ToolHandler for FetchTextHandler {
     async fn call(&self, arguments: HashMap<String, Value>) -> McpResult<ToolResult> {
         let url = required_str_arg(&arguments, "url")?;
+        let parsed = Url::parse(&url).map_err(|e| McpError::validation(format!("Invalid url: {e}")))?;
+        if !self.robots.allow(&parsed).await? {
+            return Err(McpError::validation("Blocked by robots.txt".to_string()));
+        }
         let html = fetch_html(&self.client, &url).await?;
         let doc = Html::parse_document(&html);
 

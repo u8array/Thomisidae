@@ -92,6 +92,15 @@ google_search = true
 [google_search]
 api_key = "YOUR_GOOGLE_API_KEY"
 cse_id = "YOUR_CUSTOM_SEARCH_ENGINE_ID"
+
+# Robots.txt compliance
+[robots]
+# Respect robots.txt rules when fetching pages
+obey = true
+# Optional UA used both for robots evaluation and HTTP requests (if provided)
+# user_agent = "lm_mcp_server/0.1.0"
+# Cache TTL for per-origin robots rules
+cache_ttl_secs = 3600
 ```
 
 If you set a feature to `false`, the tool won't be registered and won't appear in `tools/list`.
@@ -114,3 +123,10 @@ Requires the latest stable Rust toolchain.
 ```powershell
 cargo build --release
 ```
+
+## robots.txt handling
+
+- The server enforces robots.txt for page fetches (`fetch_url_text`, `fetch_page_links`) when `robots.obey = true` (default).
+- Per origin, `robots.txt` is fetched and cached for `robots.cache_ttl_secs` seconds.
+- Parsing and matching use the `robotstxt` crate (a native Rust port of Google’s robots.txt parser and matcher), so semantics align closely with industry expectations.
+- If `robots.txt` can’t be fetched (non-success HTTP) or the request fails, we default to allow (fail-open). Disable entirely via `robots.obey = false`.
