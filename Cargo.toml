@@ -9,7 +9,7 @@ reqwest = { version = "0.12", features = ["json", "gzip", "brotli"] }
 scraper = "0.24"
 anyhow = "1"
 serde = { version = "1", features = ["derive"] }
-mcp-protocol-sdk = "0.2"
+mcp-protocol-sdk = "0.5"
 serde_json = "1"
 async-trait = "0.1"
 jsonrpc-v2 = "0.13.0"
