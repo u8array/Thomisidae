@@ -1,13 +1,7 @@
 # rs-mcp-url-fetcher
 
 [![Rust CI](https://github.com/u8array/rs-mcp-url-fetcher/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/u8array/rs-mcp-url-fetcher/actions/workflows/rust.yml)
-
-!!! WIP — in progress !!!
-
-I am currently working on this project. Planned short-term tasks:
-
-- [ ] Optimize response text (truncation, filtering, clearer formatting)
-- [ ] Release build
+[![Dependabot alerts](https://img.shields.io/github/dependabot/alerts/u8array/lm_mcp_server?label=dependabot%20alerts&logo=dependabot)](https://github.com/u8array/lm_mcp_server/security/dependabot)
 
 
 This small MCP (Model Context Protocol) STDIO server binary is intended to provide controlled web access to LM Studio models
