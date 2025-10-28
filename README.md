@@ -12,7 +12,41 @@ Exposed tools:
 - `fetch_page_links` — extracts unique href links from a page and returns them as text or JSON.
 - `google_search` — performs a Google Programmable Search (Custom Search API) query and returns top results. (requires an API key: https://docs.cloud.google.com/docs/authentication/api-keys?hl=en#create)
 
-Implementation note: this project uses the `mcp-protocol-sdk` Rust crate and implements MCP over STDIO.
+## Why this tool?
+
+LM Studio can launch and call external tools over MCP. This repository provides a small, auditable bridge that allows models to retrieve web content.
+
+## LM Studio integration (short)
+
+For detailed setup steps, see the LM Studio MCP documentation: https://lmstudio.ai/docs/app/mcp
+
+1. Build or download the binary (see Build).
+2. Configure the MCP server in LM Studio (via the Integrations dialog):
+
+When you click the "Install" button and then choose "Edit mcp.json", LM Studio opens a dialog where you can paste or edit the integrations JSON directly.
+
+![LM Studio: Integration dialog](docs/install.png)
+
+Paste JSON like the following into the dialog and save it. :
+
+```json
+{
+    "mcpServers": {
+        "url-fetcher": {
+            "command": "path/to/lm_mcp_server"
+        }
+    }
+}
+```
+
+If you already have other tools configured in `mcp.json`, you can add this server without removing them.
+
+
+3. Enable the tool in LM Studio. The application will perform the MCP handshake and call `tools/list`. Once the handshake succeeds, the available tools appear in the integrations/plugins list.
+
+After installation you should see the tools listed as an integration/plugin:
+
+![LM Studio: installed and initialized](docs/installed.png)
 
 ### Tool arguments
 
@@ -70,42 +104,6 @@ Example `.env`:
 GOOGLE_API_KEY=your_api_key_here
 GOOGLE_CSE_ID=your_cse_id_here
 ```
-
-## Why this tool?
-
-LM Studio can launch and call external tools over MCP. This repository provides a small, auditable bridge that allows models to retrieve web content.
-
-## LM Studio integration (short)
-
-For detailed setup steps, see the LM Studio MCP documentation: https://lmstudio.ai/docs/app/mcp
-
-1. Build or download the binary (see Build).
-2. Configure the MCP server in LM Studio (via the Integrations dialog):
-
-When you click the "Install" button and then choose "Edit mcp.json", LM Studio opens a dialog where you can paste or edit the integrations JSON directly.
-
-![LM Studio: Integration dialog](docs/install.png)
-
-Paste JSON like the following into the dialog and save it. :
-
-```json
-{
-    "mcpServers": {
-        "url-fetcher": {
-            "command": "path/to/lm_mcp_server"
-        }
-    }
-}
-```
-
-If you already have other tools configured in `mcp.json`, you can add this server without removing them.
-
-
-3. Enable the tool in LM Studio. The application will perform the MCP handshake and call `tools/list`. Once the handshake succeeds, the available tools appear in the integrations/plugins list.
-
-After installation you should see the tools listed as an integration/plugin:
-
-![LM Studio: installed and initialized](docs/installed.png)
 
 ## Build
 
