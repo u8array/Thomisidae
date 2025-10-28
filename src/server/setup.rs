@@ -6,9 +6,11 @@ use std::sync::Arc;
 use crate::{
     FetchLinksHandler,
     FetchTextHandler,
+    GoogleSearchHandler,
     ToolsMeta,
     fetch_links_meta,
     fetch_text_meta,
+    google_search_meta,
 };
 
 use super::state::AppState;
@@ -23,6 +25,7 @@ pub fn build_state(client: &Client, config: &Config) -> AppState {
     let fetch_links_handler = Arc::new(FetchLinksHandler {
         client: client.clone(),
     });
+    let google_search_handler = Arc::new(GoogleSearchHandler::from_config(client.clone(), config));
 
     let mut metas = Vec::new();
     let mut handlers: HashMap<String, Arc<dyn ToolHandler + Send + Sync>> = HashMap::new();
@@ -40,6 +43,14 @@ pub fn build_state(client: &Client, config: &Config) -> AppState {
         handlers.insert(
             "fetch_page_links".into(),
             fetch_links_handler as Arc<dyn ToolHandler + Send + Sync>,
+        );
+    }
+
+    if config.is_enabled("google_search") {
+        metas.push(google_search_meta());
+        handlers.insert(
+            "google_search".into(),
+            google_search_handler as Arc<dyn ToolHandler + Send + Sync>,
         );
     }
 

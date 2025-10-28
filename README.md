@@ -10,6 +10,7 @@ Exposed tools:
 
 - `fetch_url_text` — fetches the HTML body content of a URL and returns it as plain text.
 - `fetch_page_links` — extracts unique href links from a page and returns them as text or JSON.
+- `google_search` — performs a Google Programmable Search (Custom Search API) query and returns top results. (requires an API key: https://docs.cloud.google.com/docs/authentication/api-keys?hl=en#create)
 
 Implementation note: this project uses the `mcp-protocol-sdk` Rust crate and implements MCP over STDIO.
 
@@ -22,6 +23,12 @@ Implementation note: this project uses the `mcp-protocol-sdk` Rust crate and imp
     - url (string, required)
     - same_domain (boolean, optional, default: false)
     - format (string, optional, one of: "text" | "json"; default: "text")
+
+- google_search
+    - query (string, required)
+    - num (integer, optional, 1-10; default: 5)
+    - site (string, optional; restricts to a domain like "example.com")
+    - format (string, optional, one of: "text" | "json"; default: "text")
   
 Notes for `fetch_page_links`:
 - Only http/https links are returned.
@@ -30,6 +37,7 @@ Notes for `fetch_page_links`:
 ## Configuration
 
 This server optionally reads a `config.toml` placed in the same directory as the executable. If no config is found, all features default to enabled.
+Environment variables can also be loaded from a local `.env` file (dotenv) automatically at startup. This is handy for secrets like `GOOGLE_API_KEY`.
 
 Example `config.toml` next to the executable:
 
@@ -40,9 +48,28 @@ fetch_url_text = true
 
 # Fetches unique links from a page
 fetch_page_links = true
+
+# Enable Google Custom Search tool
+google_search = true
+
+# Google Programmable Search configuration (optional; can also use env vars)
+[google_search]
+api_key = "YOUR_GOOGLE_API_KEY"
+cse_id = "YOUR_CUSTOM_SEARCH_ENGINE_ID"
 ```
 
 If you set a feature to `false`, the tool won't be registered and won't appear in `tools/list`.
+
+Notes for `google_search`:
+- Requires either config keys `google_search.api_key` and `google_search.cse_id` in `config.toml`, or environment variables `GOOGLE_API_KEY` and `GOOGLE_CSE_ID`.
+- Uses Google Custom Search JSON API. You need to create a Programmable Search Engine (CSE) and enable the Custom Search API in Google Cloud.
+
+Example `.env`:
+
+```
+GOOGLE_API_KEY=your_api_key_here
+GOOGLE_CSE_ID=your_cse_id_here
+```
 
 ## Why this tool?
 
