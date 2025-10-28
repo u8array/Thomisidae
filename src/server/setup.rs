@@ -36,10 +36,12 @@ pub fn build_state(client: &Client, config: &Config) -> AppState {
     let fetch_text_handler = Arc::new(FetchTextHandler {
         client: client.clone(),
         robots: robots.clone(),
+        max_response_size: config.max_response_size,
     });
     let fetch_links_handler = Arc::new(FetchLinksHandler {
         client: client.clone(),
         robots: robots.clone(),
+        max_response_size: config.max_response_size,
     });
     let google_search_handler = Arc::new(GoogleSearchHandler::from_config(client.clone(), config));
 

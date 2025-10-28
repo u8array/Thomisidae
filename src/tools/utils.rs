@@ -19,9 +19,7 @@ pub fn required_str_arg(
 }
 
 
-const MAX_RESPONSE_BYTES: usize = 2 * 1024 * 1024;
-
-pub async fn fetch_html(client: &Client, url: &str) -> McpResult<String> {
+pub async fn fetch_html(client: &Client, url: &str, max_response_size: usize) -> McpResult<String> {
     let parsed = Url::parse(url).map_err(|e| McpError::validation(format!("Invalid url: {e}")))?;
     if !matches!(parsed.scheme(), "http" | "https") {
         return Err(McpError::validation(format!(
@@ -42,13 +40,15 @@ pub async fn fetch_html(client: &Client, url: &str) -> McpResult<String> {
         .await
         .map_err(|e| McpError::internal(e.to_string()))?;
 
+
     if let Some(len) = resp.content_length()
-        && (len as usize > MAX_RESPONSE_BYTES)
+        && (len as usize > max_response_size)
     {
         return Err(McpError::validation(format!(
-            "Response too large: {len} bytes (max {MAX_RESPONSE_BYTES})"
+            "Response too large: {len} bytes (max {max_response_size})"
         )));
     }
+
 
     let mut total: usize = 0;
     let mut out = Vec::with_capacity(64 * 1024);
@@ -56,9 +56,9 @@ pub async fn fetch_html(client: &Client, url: &str) -> McpResult<String> {
     while let Some(chunk_res) = stream.next().await {
         let chunk = chunk_res.map_err(|e| McpError::internal(e.to_string()))?;
         total = total.saturating_add(chunk.len());
-        if total > MAX_RESPONSE_BYTES {
+        if total > max_response_size {
             return Err(McpError::validation(format!(
-                "Response exceeded limit ({MAX_RESPONSE_BYTES} bytes)"
+                "Response exceeded limit ({max_response_size} bytes)"
             )));
         }
         out.extend_from_slice(&chunk);

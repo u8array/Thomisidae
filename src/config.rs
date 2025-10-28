@@ -38,7 +38,11 @@ pub struct Config {
     pub google_search: Option<GoogleSearchConfig>,
     #[serde(default)]
     pub robots: RobotsConfig,
+    #[serde(default = "default_max_response_size")]
+    pub max_response_size: usize,
 }
+
+fn default_max_response_size() -> usize { 2 * 1024 * 1024 }
 
 impl Config {
     pub fn load_from_path<P: AsRef<Path>>(path: P) -> Self {

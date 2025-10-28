@@ -24,3 +24,6 @@ obey = true
 # user_agent = "lm_mcp_server/0.1.0"
 # Cache TTL for robots.txt entries in seconds
 cache_ttl_secs = 3600
+
+# Maximum response size in bytes for fetched pages (default: 2097152 = 2MB)
+max_response_size = 2097152
