@@ -17,6 +17,23 @@ Exposed tools:
 
 Implementation note: this project uses the `mcp-protocol-sdk` Rust crate and implements MCP over STDIO.
 
+## Configuration
+
+This server reads an optional `config.toml` from the working directory (or from the path specified by the `LM_MCP_CONFIG` environment variable). Missing or unknown feature keys default to enabled.
+
+Example `config.toml`:
+
+```toml
+[features]
+# Fetches the text content of a URL
+fetch_url_text = true
+
+# Fetches unique links from a page
+fetch_page_links = true
+```
+
+If you set a feature to `false`, the tool won't be registered and won't appear in `tools/list`.
+
 ## Why this tool?
 
 LM Studio can launch and call external tools over MCP. This repository provides a small, auditable bridge that allows models to retrieve web content without giving the model direct network access. This enables:

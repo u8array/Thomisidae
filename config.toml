@@ -1,0 +1,6 @@
+[features]
+# Fetches the text content of a URL
+fetch_url_text = true
+
+# Fetches unique links from a page
+fetch_page_links = true
