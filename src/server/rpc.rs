@@ -42,6 +42,7 @@ pub async fn tools_call(
         .map_err(|e| RpcError::internal(format!("Invalid 'arguments': {e}")))?;
 
     if let Some(handler) = data.handlers.get(&name) {
+        let _permit = data.concurrency.acquire().await.map_err(|e| RpcError::internal(format!("Semaphore error: {e}")))?;
         match handler.call(arg_map).await {
             Ok(tr) => Ok(serde_json::to_value(tr).unwrap_or(json!(null))),
             Err(e) => Err(e.to_rpc_error()),

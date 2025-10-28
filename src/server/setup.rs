@@ -12,6 +12,7 @@ use crate::{
 };
 
 use super::state::AppState;
+use tokio::sync::Semaphore;
 
 use crate::config::Config;
 
@@ -44,8 +45,11 @@ pub fn build_state(client: &Client, config: &Config) -> AppState {
 
     let tools_meta = ToolsMeta(metas);
 
+    let concurrency = Arc::new(Semaphore::new(4));
+
     AppState {
         tools_meta,
         handlers,
+        concurrency,
     }
 }
