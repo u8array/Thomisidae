@@ -5,6 +5,7 @@ use std::path::Path;
 
 fn default_true() -> bool { true }
 fn default_ttl_secs() -> u64 { 3600 }
+fn default_timeout_ms() -> u64 { 8000 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct RobotsConfig {
@@ -30,7 +31,7 @@ pub struct GoogleSearchConfig {
     pub cse_id: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize, Default)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Config {
     #[serde(default)]
     pub features: HashMap<String, bool>,
@@ -40,6 +41,8 @@ pub struct Config {
     pub robots: RobotsConfig,
     #[serde(default = "default_max_response_size")]
     pub max_response_size: usize,
+    #[serde(default = "default_timeout_ms")]
+    pub timeout_ms: u64,
 }
 
 fn default_max_response_size() -> usize { 2 * 1024 * 1024 }
@@ -52,7 +55,7 @@ impl Config {
                 Ok(cfg) => cfg,
                 Err(err) => {
                     eprintln!(
-                        "[lm_mcp_server] Failed to parse config at '{}': {}. Using defaults.",
+                        "[Thomisidae] Failed to parse config at '{}': {}. Using defaults.",
                         path.display(),
                         err
                     );
@@ -69,18 +72,33 @@ impl Config {
             let exe_cfg = exe_path.join("config.toml");
             if exe_cfg.exists() {
                 eprintln!(
-                    "[lm_mcp_server] Using config next to executable: {}",
+                    "[Thomisidae] Using config next to executable: {}",
                     exe_cfg.display()
                 );
                 return Self::load_from_path(exe_cfg);
             }
         }
 
-        eprintln!("[lm_mcp_server] No config.toml found. Using defaults (all features enabled).");
+        eprintln!("[Thomisidae] No config.toml found. Using defaults (most features enabled; google_search disabled).");
         Self::default()
     }
 
     pub fn is_enabled(&self, name: &str) -> bool {
+        if name == "google_search" {
+            return self.features.get(name).copied().unwrap_or(false);
+        }
         self.features.get(name).copied().unwrap_or(true)
+    }
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            features: HashMap::new(),
+            google_search: None,
+            robots: RobotsConfig::default(),
+            max_response_size: default_max_response_size(),
+            timeout_ms: default_timeout_ms(),
+        }
     }
 }

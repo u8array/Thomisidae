@@ -1,7 +1,7 @@
 use anyhow::Result;
-use lm_mcp_server::server;
-use lm_mcp_server::config::Config;
-use lm_mcp_server::environment;
+use thomisidae::server;
+use thomisidae::config::Config;
+use thomisidae::environment;
 use reqwest::Client;
 use std::time::Duration;
 
@@ -13,7 +13,7 @@ async fn main() -> Result<()> {
         .robots
         .user_agent
         .clone()
-        .unwrap_or_else(|| "lm_mcp_server/0.1.0".to_string());
+        .unwrap_or_else(|| "thomisidae/0.1.0".to_string());
     let client = Client::builder()
         .timeout(Duration::from_secs(10))
         .redirect(reqwest::redirect::Policy::limited(10))

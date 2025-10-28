@@ -1221,26 +1221,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "241eaef5fd12c88705a01fc1066c48c4b36e0dd4377dcdc7ec3942cea7a69956"
 
 [[package]]
-name = "lm_mcp_server"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "dotenvy",
- "futures-util",
- "jsonrpc-v2",
- "mcp-protocol-sdk",
- "reqwest",
- "robotstxt",
- "scraper",
- "serde",
- "serde_json",
- "tokio",
- "toml",
- "url",
-]
-
-[[package]]
 name = "local-channel"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2167,6 +2147,26 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "thomisidae"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "dotenvy",
+ "futures-util",
+ "jsonrpc-v2",
+ "mcp-protocol-sdk",
+ "reqwest",
+ "robotstxt",
+ "scraper",
+ "serde",
+ "serde_json",
+ "tokio",
+ "toml",
+ "url",
 ]
 
 [[package]]

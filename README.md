@@ -33,9 +33,9 @@ Paste JSON like the following into the dialog and save it:
 
 ```json
 {
-    "mcpServers": {
+        "mcpServers": {
         "url-fetcher": {
-            "command": "path/to/lm_mcp_server"
+            "command": "path/to/thomisidae"
         }
     }
 }
@@ -77,7 +77,7 @@ After installation you should see the tools listed as an integration/plugin:
 
 ## Configuration
 
-This server optionally reads a `config.toml` placed in the same directory as the executable. If no config is found, all features default to enabled.
+This server optionally reads a `config.toml` placed in the same directory as the executable. If no config is found, most features default to enabled, but `google_search` is disabled by default.
 Environment variables can also be loaded from a local `.env` file (dotenv) automatically at startup. This is handy for secrets like `GOOGLE_API_KEY`.
 
 Example `config.toml` next to the executable:
@@ -90,8 +90,8 @@ fetch_url_text = true
 # Fetches unique links from a page
 fetch_page_links = true
 
-# Enable Google Custom Search tool
-google_search = true
+# Enable Google Custom Search tool (default is disabled unless explicitly set true)
+google_search = false
 
 # Google Programmable Search configuration (optional; can also use env vars)
 [google_search]
@@ -103,12 +103,15 @@ cse_id = "YOUR_CUSTOM_SEARCH_ENGINE_ID"
 # Respect robots.txt rules when fetching pages
 obey = true
 # Optional UA used both for robots evaluation and HTTP requests (if provided)
-# user_agent = "lm_mcp_server/0.1.0"
+# user_agent = "thomisidae/0.1.0"
 # Cache TTL for per-origin robots rules
 cache_ttl_secs = 3600
 
 # Maximum response size in bytes for fetched pages (default: 2097152 = 2MB)
 max_response_size = 2097152
+
+# Global network timeout for outgoing HTTP requests in milliseconds (default: 8000)
+timeout_ms = 8000
 ```
 
 If you set a feature to `false`, the tool won't be registered and won't appear in `tools/list`.
