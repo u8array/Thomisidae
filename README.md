@@ -1,5 +1,7 @@
 # rs-mcp-url-fetcher
 
+[![Rust CI](https://github.com/u8array/rs-mcp-url-fetcher/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/u8array/rs-mcp-url-fetcher/actions/workflows/rust.yml)
+
 !!! WIP — in progress !!!
 
 I am currently working on this project. Planned short-term tasks:
