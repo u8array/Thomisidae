@@ -19,9 +19,9 @@ Implementation note: this project uses the `mcp-protocol-sdk` Rust crate and imp
 
 ## Configuration
 
-This server reads an optional `config.toml` from the working directory (or from the path specified by the `LM_MCP_CONFIG` environment variable). Missing or unknown feature keys default to enabled.
+This server optionally reads a `config.toml` placed in the same directory as the executable. If no config is found, all features default to enabled.
 
-Example `config.toml`:
+Example `config.toml` next to the executable:
 
 ```toml
 [features]

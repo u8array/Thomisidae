@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 #[derive(Debug, Clone, Deserialize, Default)]
 pub struct Config {
@@ -29,11 +29,20 @@ impl Config {
     }
 
     pub fn load_default() -> Self {
-        if let Ok(p) = std::env::var("LM_MCP_CONFIG") {
-            return Self::load_from_path(p);
+        if let Ok(mut exe_path) = std::env::current_exe() {
+            exe_path.pop();
+            let exe_cfg = exe_path.join("config.toml");
+            if exe_cfg.exists() {
+                eprintln!(
+                    "[lm_mcp_server] Using config next to executable: {}",
+                    exe_cfg.display()
+                );
+                return Self::load_from_path(exe_cfg);
+            }
         }
-        let default = PathBuf::from("config.toml");
-        Self::load_from_path(default)
+
+        eprintln!("[lm_mcp_server] No config.toml found. Using defaults (all features enabled).");
+        Self::default()
     }
 
     pub fn is_enabled(&self, name: &str) -> bool {
