@@ -26,6 +26,7 @@ pub fn meta() -> ToolMeta {
 pub struct FetchLinksHandler {
     pub client: Client,
     pub robots: Arc<Robots>,
+    pub max_response_size: usize,
 }
 
 #[async_trait]
@@ -44,7 +45,7 @@ impl ToolHandler for FetchLinksHandler {
         if !self.robots.allow(&base_url).await? {
             return Err(McpError::validation("Blocked by robots.txt".to_string()));
         }
-        let html = fetch_html(&self.client, &url).await?;
+    let html = fetch_html(&self.client, &url, self.max_response_size).await?;
         let doc = Html::parse_document(&html);
         let a = Selector::parse("a[href]").map_err(|e| McpError::internal(e.to_string()))?;
         let base_domain = base_url.domain();

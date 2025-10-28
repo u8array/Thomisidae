@@ -25,6 +25,7 @@ pub fn meta() -> ToolMeta {
 pub struct FetchTextHandler {
     pub client: Client,
     pub robots: Arc<Robots>,
+    pub max_response_size: usize,
 }
 
 #[async_trait]
@@ -35,7 +36,7 @@ impl ToolHandler for FetchTextHandler {
         if !self.robots.allow(&parsed).await? {
             return Err(McpError::validation("Blocked by robots.txt".to_string()));
         }
-        let html = fetch_html(&self.client, &url).await?;
+        let html = fetch_html(&self.client, &url, self.max_response_size).await?;
         let doc = Html::parse_document(&html);
 
         let blocks = extract_main_blocks(&doc).unwrap_or_else(|| extract_fallback_blocks(&doc));

@@ -101,6 +101,9 @@ obey = true
 # user_agent = "lm_mcp_server/0.1.0"
 # Cache TTL for per-origin robots rules
 cache_ttl_secs = 3600
+
+# Maximum response size in bytes for fetched pages (default: 2097152 = 2MB)
+max_response_size = 2097152
 ```
 
 If you set a feature to `false`, the tool won't be registered and won't appear in `tools/list`.
