@@ -42,23 +42,17 @@ impl Robots {
         }
         let origin = origin_key(url);
 
-        if let Some(allow) = {
+        {
             let cache = self.cache.read().await;
             if let Some(entry) = cache.get(&origin) {
                 if entry.fresh(self.ttl) {
-                    let mut matcher = DefaultMatcher::default();
-                    Some(matcher.one_agent_allowed_by_robots(&entry.body, &self.user_agent, url.as_str()))
-                } else {
-                    None
+                    return Ok(DefaultMatcher::default()
+                        .one_agent_allowed_by_robots(&entry.body, &self.user_agent, url.as_str()));
                 }
-            } else {
-                None
             }
-        } {
-            return Ok(allow);
         }
 
-        let body: String = self.fetch_robots_body_for(&origin).await.unwrap_or_default();
+        let body = self.fetch_robots_body_for(&origin).await.unwrap_or_default();
 
         {
             let mut cache = self.cache.write().await;
@@ -71,28 +65,16 @@ impl Robots {
         if body.is_empty() {
             return Ok(true);
         }
-        let mut matcher = DefaultMatcher::default();
-        Ok(matcher.one_agent_allowed_by_robots(&body, &self.user_agent, url.as_str()))
+        Ok(DefaultMatcher::default().one_agent_allowed_by_robots(&body, &self.user_agent, url.as_str()))
     }
 
     async fn fetch_robots_body_for(&self, origin: &str) -> McpResult<String> {
         let robots_url = format!("{origin}/robots.txt");
-        let resp = self
-            .client
-            .get(&robots_url)
-            .send()
-            .await
-            .map_err(|e| McpError::internal(e.to_string()))?;
-
+        let resp = self.client.get(&robots_url).send().await.map_err(|e| McpError::internal(e.to_string()))?;
         if !resp.status().is_success() {
             return Ok(String::new());
         }
-
-        let text = resp
-            .text()
-            .await
-            .map_err(|e| McpError::internal(e.to_string()))?;
-        Ok(text)
+        resp.text().await.map_err(|e| McpError::internal(e.to_string()))
     }
 }
 
@@ -105,12 +87,9 @@ impl CacheEntry {
 fn origin_key(url: &Url) -> String {
     let scheme = url.scheme();
     let host = url.host_str().unwrap_or("");
-    let port = url.port_or_known_default().unwrap_or_default();
-    if port == 0 {
-        format!("{scheme}://{host}")
-    } else {
-        format!("{scheme}://{host}:{port}")
-    }
+    url.port_or_known_default()
+        .map(|port| format!("{scheme}://{host}:{port}"))
+        .unwrap_or_else(|| format!("{scheme}://{host}"))
 }
 
 #[cfg(test)]
@@ -120,7 +99,6 @@ mod tests {
     #[test]
     fn robotstxt_quickstart() {
         let body = "user-agent: FooBot\ndisallow: /\n";
-        let mut matcher = DefaultMatcher::default();
-        assert_eq!(false, matcher.one_agent_allowed_by_robots(body, "FooBot", "https://foo.com/"));
+        assert!(!DefaultMatcher::default().one_agent_allowed_by_robots(body, "FooBot", "https://foo.com/"));
     }
 }
