@@ -4,9 +4,19 @@ use std::fs;
 use std::path::Path;
 
 #[derive(Debug, Clone, Deserialize, Default)]
+pub struct GoogleSearchConfig {
+    #[serde(default)]
+    pub api_key: Option<String>,
+    #[serde(default)]
+    pub cse_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct Config {
     #[serde(default)]
     pub features: HashMap<String, bool>,
+    #[serde(default)]
+    pub google_search: Option<GoogleSearchConfig>,
 }
 
 impl Config {

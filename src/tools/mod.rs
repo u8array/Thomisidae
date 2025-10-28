@@ -1,10 +1,13 @@
 pub mod fetch_links;
 pub mod fetch_text;
 pub mod meta;
-mod utils;
+pub mod utils;
+pub mod google_search;
 
 pub use fetch_links::FetchLinksHandler;
 pub use fetch_text::FetchTextHandler;
+pub use google_search::GoogleSearchHandler;
 pub use meta::{ToolMeta, ToolsMeta};
 pub use fetch_links::meta as fetch_links_meta;
 pub use fetch_text::meta as fetch_text_meta;
+pub use google_search::meta as google_search_meta;

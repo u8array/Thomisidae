@@ -4,3 +4,13 @@ fetch_url_text = true
 
 # Fetches unique links from a page
 fetch_page_links = true
+
+# Enable Google Custom Search tool
+google_search = true
+
+# Google Programmable Search configuration (optional; can also use env vars)
+# Configure under a dedicated section (preferred). Alternatively, set via ENV.
+
+#[google_search]
+# api_key = "YOUR_GOOGLE_API_KEY"
+# cse_id = "YOUR_CUSTOM_SEARCH_ENGINE_ID"
