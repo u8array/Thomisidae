@@ -11,6 +11,7 @@ use crate::{
     fetch_links_meta,
     fetch_text_meta,
     google_search_meta,
+    ToolMeta,
     Robots,
 };
 
@@ -18,6 +19,7 @@ use super::state::AppState;
 use tokio::sync::Semaphore;
 
 use crate::config::Config;
+use crate::tools::DomainPolicy;
 
 pub fn build_state(client: &Client, config: &Config) -> AppState {
     let ua = config
@@ -33,23 +35,40 @@ pub fn build_state(client: &Client, config: &Config) -> AppState {
         config.robots.cache_ttl_secs,
     ));
 
+    let policy = Arc::new(DomainPolicy::from_config(config));
+
     let fetch_text_handler = Arc::new(FetchTextHandler {
         client: client.clone(),
         robots: robots.clone(),
         max_response_size: config.max_response_size,
+        policy: policy.clone(),
     });
     let fetch_links_handler = Arc::new(FetchLinksHandler {
         client: client.clone(),
         robots: robots.clone(),
         max_response_size: config.max_response_size,
+        policy: policy.clone(),
     });
     let google_search_handler = Arc::new(GoogleSearchHandler::from_config(client.clone(), config));
 
     let mut metas = Vec::new();
     let mut handlers: HashMap<String, Arc<dyn ToolHandler + Send + Sync>> = HashMap::new();
 
+    fn maybe_annotate_policy(mut m: ToolMeta, policy: &crate::tools::DomainPolicy, header: &str) -> ToolMeta {
+        if !policy.is_empty() {
+            m.description = format!(
+                "{}\n\n{}\n{}",
+                m.description,
+                header,
+                policy.describe()
+            );
+        }
+        m
+    }
+
     if config.is_enabled("fetch_url_text") {
-        metas.push(fetch_text_meta());
+        let m = maybe_annotate_policy(fetch_text_meta(), &policy, "Domain policy:");
+        metas.push(m);
         handlers.insert(
             "fetch_url_text".into(),
             fetch_text_handler as Arc<dyn ToolHandler + Send + Sync>,
@@ -57,7 +76,8 @@ pub fn build_state(client: &Client, config: &Config) -> AppState {
     }
 
     if config.is_enabled("fetch_page_links") {
-        metas.push(fetch_links_meta());
+        let m = maybe_annotate_policy(fetch_links_meta(), &policy, "Domain policy:");
+        metas.push(m);
         handlers.insert(
             "fetch_page_links".into(),
             fetch_links_handler as Arc<dyn ToolHandler + Send + Sync>,

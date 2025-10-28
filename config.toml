@@ -27,3 +27,14 @@ cache_ttl_secs = 3600
 
 # Maximum response size in bytes for fetched pages (default: 2097152 = 2MB)
 max_response_size = 2097152
+
+# Domain policy
+# - allowed_domains: when empty, all domains are allowed unless listed in blocked_domains
+# - blocked_domains: domains that are always blocked
+# Matching is by domain or subdomain (e.g., "example.com" also matches "sub.example.com")
+# Example:
+# allowed_domains = ["example.com", "rust-lang.org"]
+# blocked_domains = ["bad.example", "tracker.com"]
+
+# allowed_domains = []
+# blocked_domains = []

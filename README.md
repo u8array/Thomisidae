@@ -112,6 +112,13 @@ max_response_size = 2097152
 
 # Global network timeout for outgoing HTTP requests in milliseconds (default: 8000)
 timeout_ms = 8000
+
+# Domain policy
+# When `allowed_domains` is empty, all domains are allowed unless explicitly blocked.
+# Matching is by domain or subdomain (e.g., "example.com" also matches "sub.example.com").
+# `blocked_domains` always takes precedence.
+# allowed_domains = ["example.com", "rust-lang.org"]
+# blocked_domains = ["bad.example", "tracker.com"]
 ```
 
 If you set a feature to `false`, the tool won't be registered and won't appear in `tools/list`.

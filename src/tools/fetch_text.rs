@@ -1,6 +1,7 @@
 use super::meta::ToolMeta;
 use super::utils::{fetch_html, required_str_arg, text_tool_result};
 use super::robots::Robots;
+use super::policy::{DomainPolicy, ensure_allowed};
 use async_trait::async_trait;
 use mcp_protocol_sdk::prelude::*;
 use reqwest::Client;
@@ -26,6 +27,7 @@ pub struct FetchTextHandler {
     pub client: Client,
     pub robots: Arc<Robots>,
     pub max_response_size: usize,
+    pub policy: Arc<DomainPolicy>,
 }
 
 #[async_trait]
@@ -33,6 +35,7 @@ impl ToolHandler for FetchTextHandler {
     async fn call(&self, arguments: HashMap<String, Value>) -> McpResult<ToolResult> {
         let url = required_str_arg(&arguments, "url")?;
         let parsed = Url::parse(&url).map_err(|e| McpError::validation(format!("Invalid url: {e}")))?;
+        ensure_allowed(&self.policy, &parsed)?;
         if !self.robots.allow(&parsed).await? {
             return Err(McpError::validation("Blocked by robots.txt".to_string()));
         }

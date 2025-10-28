@@ -9,6 +9,7 @@ use url::Url;
 use super::meta::ToolMeta;
 use std::sync::OnceLock;
 use super::robots::Robots;
+use super::policy::{DomainPolicy, ensure_allowed};
 
 static META: OnceLock<ToolMeta> = OnceLock::new();
 
@@ -27,6 +28,7 @@ pub struct FetchLinksHandler {
     pub client: Client,
     pub robots: Arc<Robots>,
     pub max_response_size: usize,
+    pub policy: Arc<DomainPolicy>,
 }
 
 #[async_trait]
@@ -35,6 +37,7 @@ impl ToolHandler for FetchLinksHandler {
 
         let url = required_str_arg(&arguments, "url")?;
         let base_url = Url::parse(&url).map_err(|e| McpError::validation(format!("Invalid url: {e}")))?;
+        ensure_allowed(&self.policy, &base_url)?;
 
         let same_domain = arguments.get("same_domain").and_then(|v| v.as_bool()).unwrap_or(false);
         let format = arguments
@@ -61,6 +64,7 @@ impl ToolHandler for FetchLinksHandler {
                 u.to_string()
             })
             .filter_map(|s| if seen.insert(s.clone()) { Some(s) } else { None })
+            .filter(|s| Url::parse(s).map_or(true, |u| self.policy.allows_url(&u)))
             .collect();
 
         match format {

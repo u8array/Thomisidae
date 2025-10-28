@@ -39,6 +39,10 @@ pub struct Config {
     pub google_search: Option<GoogleSearchConfig>,
     #[serde(default)]
     pub robots: RobotsConfig,
+    #[serde(default)]
+    pub allowed_domains: Vec<String>,
+    #[serde(default)]
+    pub blocked_domains: Vec<String>,
     #[serde(default = "default_max_response_size")]
     pub max_response_size: usize,
     #[serde(default = "default_timeout_ms")]
@@ -97,6 +101,8 @@ impl Default for Config {
             features: HashMap::new(),
             google_search: None,
             robots: RobotsConfig::default(),
+            allowed_domains: Vec::new(),
+            blocked_domains: Vec::new(),
             max_response_size: default_max_response_size(),
             timeout_ms: default_timeout_ms(),
         }
