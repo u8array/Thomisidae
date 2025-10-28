@@ -11,6 +11,7 @@ use crate::{
     fetch_links_meta,
     fetch_text_meta,
     google_search_meta,
+    Robots,
 };
 
 use super::state::AppState;
@@ -19,11 +20,26 @@ use tokio::sync::Semaphore;
 use crate::config::Config;
 
 pub fn build_state(client: &Client, config: &Config) -> AppState {
+    let ua = config
+        .robots
+        .user_agent
+        .clone()
+        .unwrap_or_else(|| "lm_mcp_server/0.1.0".to_string());
+
+    let robots = Arc::new(Robots::new(
+        client.clone(),
+        ua,
+        config.robots.obey,
+        config.robots.cache_ttl_secs,
+    ));
+
     let fetch_text_handler = Arc::new(FetchTextHandler {
         client: client.clone(),
+        robots: robots.clone(),
     });
     let fetch_links_handler = Arc::new(FetchLinksHandler {
         client: client.clone(),
+        robots: robots.clone(),
     });
     let google_search_handler = Arc::new(GoogleSearchHandler::from_config(client.clone(), config));
 

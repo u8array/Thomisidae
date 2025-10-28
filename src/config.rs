@@ -3,6 +3,25 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
+fn default_true() -> bool { true }
+fn default_ttl_secs() -> u64 { 3600 }
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct RobotsConfig {
+    #[serde(default = "default_true")]
+    pub obey: bool,
+    #[serde(default)]
+    pub user_agent: Option<String>,
+    #[serde(default = "default_ttl_secs")]
+    pub cache_ttl_secs: u64,
+}
+
+impl Default for RobotsConfig {
+    fn default() -> Self {
+        Self { obey: true, user_agent: None, cache_ttl_secs: 3600 }
+    }
+}
+
 #[derive(Debug, Clone, Deserialize, Default)]
 pub struct GoogleSearchConfig {
     #[serde(default)]
@@ -17,6 +36,8 @@ pub struct Config {
     pub features: HashMap<String, bool>,
     #[serde(default)]
     pub google_search: Option<GoogleSearchConfig>,
+    #[serde(default)]
+    pub robots: RobotsConfig,
 }
 
 impl Config {

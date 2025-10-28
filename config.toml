@@ -14,3 +14,13 @@ google_search = true
 #[google_search]
 # api_key = "YOUR_GOOGLE_API_KEY"
 # cse_id = "YOUR_CUSTOM_SEARCH_ENGINE_ID"
+
+# Robots.txt compliance settings
+# If omitted, defaults apply: obey = true, cache_ttl_secs = 3600, user_agent inherits server default
+[robots]
+# Whether to obey robots.txt (true = respect rules; false = ignore)
+obey = true
+# Optional user-agent string used for robots evaluation and HTTP requests (if set)
+# user_agent = "lm_mcp_server/0.1.0"
+# Cache TTL for robots.txt entries in seconds
+cache_ttl_secs = 3600
