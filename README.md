@@ -60,15 +60,20 @@ After installation you should see the tools listed as an integration/plugin:
     - same_domain (boolean, optional, default: false)
     - format (string, optional, one of: "text" | "json"; default: "text")
 
+    Notes for `fetch_page_links`:
+    - Only http/https links are returned.
+    - Links are normalized (fragments removed) and de-duplicated.
+
 - google_search
     - query (string, required)
     - num (integer, optional, 1-10; default: 5)
     - site (string, optional; restricts to a domain like "example.com")
     - format (string, optional, one of: "text" | "json"; default: "text")
+ 
+  Notes for `google_search`:
+    - Requires either config keys `google_search.api_key` and `google_search.cse_id` in `config.toml`, or environment variables `GOOGLE_API_KEY` and `GOOGLE_CSE_ID`.
+    - Uses Google Custom Search JSON API. You need to create a Programmable Search Engine (CSE) and enable the Custom Search API in Google Cloud.
   
-Notes for `fetch_page_links`:
-- Only http/https links are returned.
-- Links are normalized (fragments removed) and de-duplicated.
 
 ## Configuration
 
@@ -105,9 +110,6 @@ cache_ttl_secs = 3600
 
 If you set a feature to `false`, the tool won't be registered and won't appear in `tools/list`.
 
-Notes for `google_search`:
-- Requires either config keys `google_search.api_key` and `google_search.cse_id` in `config.toml`, or environment variables `GOOGLE_API_KEY` and `GOOGLE_CSE_ID`.
-- Uses Google Custom Search JSON API. You need to create a Programmable Search Engine (CSE) and enable the Custom Search API in Google Cloud.
 
 Example `.env`:
 
@@ -115,6 +117,13 @@ Example `.env`:
 GOOGLE_API_KEY=your_api_key_here
 GOOGLE_CSE_ID=your_cse_id_here
 ```
+
+## robots.txt handling
+
+- The server enforces robots.txt for page fetches (`fetch_url_text`, `fetch_page_links`) when `robots.obey = true` (default).
+- Per origin, `robots.txt` is fetched and cached for `robots.cache_ttl_secs` seconds.
+- Parsing and matching use the `robotstxt` crate (a native Rust port of Google’s robots.txt parser and matcher), so semantics align closely with industry expectations.
+- If `robots.txt` can’t be fetched (non-success HTTP) or the request fails, we default to allow (fail-open). Disable entirely via `robots.obey = false`.
 
 ## Build
 
@@ -124,9 +133,3 @@ Requires the latest stable Rust toolchain.
 cargo build --release
 ```
 
-## robots.txt handling
-
-- The server enforces robots.txt for page fetches (`fetch_url_text`, `fetch_page_links`) when `robots.obey = true` (default).
-- Per origin, `robots.txt` is fetched and cached for `robots.cache_ttl_secs` seconds.
-- Parsing and matching use the `robotstxt` crate (a native Rust port of Google’s robots.txt parser and matcher), so semantics align closely with industry expectations.
-- If `robots.txt` can’t be fetched (non-success HTTP) or the request fails, we default to allow (fail-open). Disable entirely via `robots.obey = false`.
