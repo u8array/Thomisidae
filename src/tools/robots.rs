@@ -44,11 +44,10 @@ impl Robots {
 
         {
             let cache = self.cache.read().await;
-            if let Some(entry) = cache.get(&origin) {
-                if entry.fresh(self.ttl) {
-                    return Ok(DefaultMatcher::default()
-                        .one_agent_allowed_by_robots(&entry.body, &self.user_agent, url.as_str()));
-                }
+            if let Some(entry) = cache.get(&origin)
+                && entry.fresh(self.ttl) {
+                return Ok(DefaultMatcher::default()
+                    .one_agent_allowed_by_robots(&entry.body, &self.user_agent, url.as_str()));
             }
         }
 
