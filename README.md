@@ -1,7 +1,7 @@
-# rs-mcp-url-fetcher
+# Thomisidae
 
-[![Rust CI](https://github.com/u8array/rs-mcp-url-fetcher/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/u8array/rs-mcp-url-fetcher/actions/workflows/rust.yml)
-[![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen?logo=dependabot)](https://github.com/u8array/lm_mcp_server/security/dependabot)
+[![Rust CI](https://github.com/u8array/thomisidae/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/u8array/thomisidae/actions/workflows/rust.yml)
+[![Dependabot](https://img.shields.io/badge/dependabot-enabled-brightgreen?logo=dependabot)](https://github.com/u8array/thomisidae/security/dependabot)
 
 
 This small MCP (Model Context Protocol) STDIO server binary provides controlled web access to any MCP-compatible LLM client.
