@@ -7,9 +7,10 @@ use tokio::io::BufReader;
 
 use super::rpc;
 use super::setup::build_state;
+use crate::config::Config;
 
-pub fn build_server(client: &Client) -> Arc<Server<MapRouter>> {
-    let state = build_state(client);
+pub fn build_server(client: &Client, config: &Config) -> Arc<Server<MapRouter>> {
+    let state = build_state(client, config);
 
     Server::new()
         .with_data(Data::new(state))
