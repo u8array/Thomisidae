@@ -1,6 +1,7 @@
 pub mod server;
 pub mod tools;
 pub mod config;
+pub mod environment;
 
 pub use tools::{
 	FetchLinksHandler,

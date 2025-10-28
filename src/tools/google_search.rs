@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::sync::OnceLock;
 
 use crate::config::Config;
+use crate::environment::{get_google_api_key, get_google_cse_id};
 use super::meta::{ToolInputSchema, ToolMeta};
 use super::utils::{required_str_arg, text_tool_result};
 
@@ -57,29 +58,21 @@ impl ToolHandler for GoogleSearchHandler {
         let site = arguments.get("site").and_then(|v| v.as_str()).map(|s| s.trim()).filter(|s| !s.is_empty());
         let format = arguments.get("format").and_then(|v| v.as_str()).unwrap_or("text");
 
-        let api_key_owned = self
-            .api_key
-            .clone()
-            .or_else(|| std::env::var("GOOGLE_API_KEY").ok());
-        let cse_id_owned = self
-            .cse_id
-            .clone()
-            .or_else(|| std::env::var("GOOGLE_CSE_ID").ok());
+        let api_key = self.api_key.clone()
+            .ok_or_else(|| McpError::validation("Google API key not configured (set in config or GOOGLE_API_KEY env)".to_string()))?;
+        let cse_id = self.cse_id.clone()
+            .ok_or_else(|| McpError::validation("Google CSE ID not configured (set in config or GOOGLE_CSE_ID env)".to_string()))?;
 
-        let api_key = api_key_owned.ok_or_else(|| McpError::validation("Google API key not configured (set in config or GOOGLE_API_KEY env)".to_string()))?;
-        let cse_id = cse_id_owned.ok_or_else(|| McpError::validation("Google CSE ID not configured (set in config or GOOGLE_CSE_ID env)".to_string()))?;
-
-        let q = if let Some(site_str) = site { format!("site:{} {}", site_str, query) } else { query };
+        let q = site.map_or_else(|| query.to_string(), |site_str| format!("site:{} {}", site_str, query));
 
         let num_s = num.to_string();
-        let q_s = q;
 
         let resp = self.client
             .get("https://www.googleapis.com/customsearch/v1")
             .query(&[
                 ("key", api_key.as_str()),
                 ("cx", cse_id.as_str()),
-                ("q", q_s.as_str()),
+                ("q", q.as_str()),
                 ("num", num_s.as_str()),
             ])
             .send()
@@ -128,11 +121,8 @@ impl ToolHandler for GoogleSearchHandler {
 
 impl GoogleSearchHandler {
     pub fn from_config(client: Client, cfg: &Config) -> Self {
-        let env_key = std::env::var("GOOGLE_API_KEY").ok();
-        let env_cx = std::env::var("GOOGLE_CSE_ID").ok();
-        let cfg_nested_key = cfg.google_search.as_ref().and_then(|g| g.api_key.clone());
-        let cfg_nested_cx = cfg.google_search.as_ref().and_then(|g| g.cse_id.clone());
-
-        Self { client, api_key: env_key.or(cfg_nested_key), cse_id: env_cx.or(cfg_nested_cx) }
+        let api_key = get_google_api_key(cfg);
+        let cse_id = get_google_cse_id(cfg);
+        Self { client, api_key, cse_id }
     }
 }
