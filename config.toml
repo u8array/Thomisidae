@@ -1,3 +1,20 @@
+# Global fetch/network settings
+# Maximum response size in bytes for fetched pages (default: 2097152 = 2MB)
+max_response_size = 2097152
+# Global network timeout in milliseconds for outgoing HTTP requests (default: 8000)
+# timeout_ms = 8000
+
+# Domain policy
+# - allowed_domains: when empty, all domains are allowed unless listed in blocked_domains
+# - blocked_domains: domains that are always blocked
+# Matching is by domain or subdomain (e.g., "example.com" also matches "sub.example.com")
+# Example:
+# allowed_domains = ["example.com", "rust-lang.org"]
+# blocked_domains = ["bad.example", "tracker.com"]
+
+# allowed_domains = []
+# blocked_domains = []
+
 [features]
 # Fetches the text content of a URL
 fetch_url_text = true
@@ -15,26 +32,14 @@ google_search = true
 # api_key = "YOUR_GOOGLE_API_KEY"
 # cse_id = "YOUR_CUSTOM_SEARCH_ENGINE_ID"
 
+ 
+
 # Robots.txt compliance settings
 # If omitted, defaults apply: obey = true, cache_ttl_secs = 3600, user_agent inherits server default
 [robots]
 # Whether to obey robots.txt (true = respect rules; false = ignore)
 obey = true
 # Optional user-agent string used for robots evaluation and HTTP requests (if set)
-# user_agent = "lm_mcp_server/0.1.0"
+# user_agent = "thomisidae/0.1.0"
 # Cache TTL for robots.txt entries in seconds
 cache_ttl_secs = 3600
-
-# Maximum response size in bytes for fetched pages (default: 2097152 = 2MB)
-max_response_size = 2097152
-
-# Domain policy
-# - allowed_domains: when empty, all domains are allowed unless listed in blocked_domains
-# - blocked_domains: domains that are always blocked
-# Matching is by domain or subdomain (e.g., "example.com" also matches "sub.example.com")
-# Example:
-# allowed_domains = ["example.com", "rust-lang.org"]
-# blocked_domains = ["bad.example", "tracker.com"]
-
-# allowed_domains = []
-# blocked_domains = []

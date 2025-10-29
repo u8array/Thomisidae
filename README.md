@@ -9,8 +9,9 @@ This small MCP (Model Context Protocol) STDIO server binary provides controlled 
 Exposed tools:
 
 - `fetch_url_text` — fetches the HTML body content of a URL and returns it as plain text.
-- `fetch_page_links` — extracts unique href links from a page and returns them as text or JSON.
-- `google_search` — performs a Google Programmable Search (Custom Search API) query and returns top results. (requires an API key: https://docs.cloud.google.com/docs/authentication/api-keys?hl=en#create)
+- `fetch_page_links` — extracts unique href links from a page and returns them as text or JSON.<br>
+- `google_search` — performs a Google Programmable Search (Custom Search API) query and returns top results.<br>
+    <sub><sup><em>Optional: Disabled by default; requires an [API key](https://docs.cloud.google.com/docs/authentication/api-keys?hl=en#create).</em></sup></sub>
 
 ## Why this tool?
 
@@ -83,6 +84,19 @@ Environment variables can also be loaded from a local `.env` file (dotenv) autom
 Example `config.toml` next to the executable:
 
 ```toml
+# Global fetch/network (top-level)
+# Maximum response size in bytes for fetched pages (default: 2097152 = 2MB)
+max_response_size = 2097152
+# Global network timeout for outgoing HTTP requests in milliseconds (default: 8000)
+timeout_ms = 8000
+
+# Domain policy (top-level)
+# When `allowed_domains` is empty, all domains are allowed unless explicitly blocked.
+# Matching is by domain or subdomain (e.g., "example.com" also matches "sub.example.com").
+# `blocked_domains` always takes precedence.
+# allowed_domains = ["example.com", "rust-lang.org"]
+# blocked_domains = ["bad.example", "tracker.com"]
+
 [features]
 # Fetches the text content of a URL
 fetch_url_text = true
@@ -106,19 +120,6 @@ obey = true
 # user_agent = "thomisidae/0.1.0"
 # Cache TTL for per-origin robots rules
 cache_ttl_secs = 3600
-
-# Maximum response size in bytes for fetched pages (default: 2097152 = 2MB)
-max_response_size = 2097152
-
-# Global network timeout for outgoing HTTP requests in milliseconds (default: 8000)
-timeout_ms = 8000
-
-# Domain policy
-# When `allowed_domains` is empty, all domains are allowed unless explicitly blocked.
-# Matching is by domain or subdomain (e.g., "example.com" also matches "sub.example.com").
-# `blocked_domains` always takes precedence.
-# allowed_domains = ["example.com", "rust-lang.org"]
-# blocked_domains = ["bad.example", "tracker.com"]
 ```
 
 If you set a feature to `false`, the tool won't be registered and won't appear in `tools/list`.

@@ -26,7 +26,7 @@ pub fn build_state(client: &Client, config: &Config) -> AppState {
         .robots
         .user_agent
         .clone()
-        .unwrap_or_else(|| "lm_mcp_server/0.1.0".to_string());
+        .unwrap_or_else(|| "thomisidae/0.1.0".to_string());
 
     let robots = Arc::new(Robots::new(
         client.clone(),
