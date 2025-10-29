@@ -17,6 +17,25 @@ Exposed tools:
 
 Clients that implement the open Model Context Protocol (MCP) can launch and call external tools. This repository provides a small, auditable bridge that allows models to retrieve web content. LM Studio is one such MCP client and is used below as an example.
 
+## Variants and Readability mode
+
+This server is available in two variants:
+
+- Standard build (default): fast, heuristic-based content extraction.
+- Readability-enabled build: includes an advanced extraction mode based on the Readability algorithm, which can yield higher-quality article extraction on many pages, at a small performance and binary-size cost.
+
+How to choose at runtime (for clients that expose tool arguments):
+- `fetch_url_text` supports an optional `mode` argument with values:
+    - `auto` (default): choose the best strategy automatically
+    - `best_blocks`: fast heuristic extraction
+    - `readability`: use the Readability-based extraction (available in the readability-enabled build)
+    - `raw`: return unsanitized HTML or minimal processing
+
+Output formatting:
+- `fetch_url_text` also supports `format: "plain" | "markdown"` (default: `plain`).
+
+Prebuilt binaries (Linux, Windows, macOS) for both variants will be published on the Releases page.
+
 ## MCP client integration (example: LM Studio)
 
 This server works with any MCP-compatible client. The following shows setup in LM Studio as one example.
@@ -144,6 +163,10 @@ GOOGLE_CSE_ID=your_cse_id_here
 Requires the latest stable Rust toolchain.
 
 ```powershell
+# Standard (heuristic) build
 cargo build --release
+
+# Readability-enabled build
+cargo build --release --features readability
 ```
 

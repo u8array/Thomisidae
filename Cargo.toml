@@ -2,6 +2,7 @@
 name = "thomisidae"
 version = "0.1.0"
 edition = "2024"
+autobenches = false
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
@@ -20,3 +21,16 @@ dotenvy = "0.15"
 robotstxt = "0.3"
 html2md = "0.2"
 ammonia = "4"
+chardetng = "0.1"
+encoding_rs = "0.8"
+
+[features]
+default = []
+# Optional: enable a more advanced readability extraction mode
+readability = ["dep:readability"]
+
+[dependencies.readability]
+version = "0.2"
+optional = true
+
+ 

@@ -6,6 +6,8 @@ use std::collections::HashMap;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use url::Url;
 use futures_util::StreamExt;
+use encoding_rs::Encoding;
+use chardetng::EncodingDetector;
 
 
 pub fn required_str_arg(
@@ -124,7 +126,7 @@ pub async fn fetch_html_with_headers(client: &Client, url: &str, max_response_si
         out.extend_from_slice(&chunk);
     }
 
-    let body = String::from_utf8_lossy(&out).into_owned();
+    let body = decode_body(&out, ct.as_deref());
     Ok(FetchedResponse { body, content_type: ct })
 }
 
@@ -181,4 +183,32 @@ pub fn text_tool_result<T: Into<String>>(text: T) -> ToolResult {
         structured_content: None,
         meta: None,
     }
+}
+
+/// Decode HTTP response body using charset from Content-Type if available;
+/// otherwise use chardetng to guess. Falls back to UTF-8 lossless.
+pub fn decode_body(bytes: &[u8], content_type: Option<&str>) -> String {
+    if let Some(ct) = content_type
+        && let Some(cs) = parse_charset(ct)
+        && let Some(enc) = Encoding::for_label(cs.as_bytes())
+    {
+        let (cow, _, _) = enc.decode(bytes);
+        return cow.into_owned();
+    }
+    let mut detector = EncodingDetector::new();
+    detector.feed(bytes, true);
+    let enc = detector.guess(None, true);
+    let (cow, _, _) = enc.decode(bytes);
+    cow.into_owned()
+}
+
+fn parse_charset(content_type: &str) -> Option<String> {
+    let lower = content_type.to_ascii_lowercase();
+    if let Some(pos) = lower.find("charset=") {
+        let after = &content_type[pos + 8..];
+        let end = after.find(';').unwrap_or(after.len());
+        let val = after[..end].trim().trim_matches('"').trim().to_string();
+        if !val.is_empty() { return Some(val); }
+    }
+    None
 }
