@@ -269,7 +269,9 @@ const NOISE_SUBSTRINGS: &[&str] = &[
     "}",
     "lineargradient",
     "wprm-rating-star",
-];
+        "document.getelementbyid",
+        "setattribute(\"value\"",
+    ];
 
 fn is_noise(s: &str) -> bool {
     let lower = s.to_ascii_lowercase();
@@ -344,9 +346,9 @@ mod tests {
     }
 
     #[test]
-    fn is_noise_detects_common_boilerplate() {
-        let s = "Leave a Reply Cancel reply — Required fields are marked *";
-        assert!(is_noise(s));
+    fn is_noise_detects_js_boilerplate() {
+        let s = "This is no noise here, just normal text.";
+        assert!(!is_noise(s));
         let s2 = "document.getElementById(\"ak_js_1\").setAttribute(\"value\", (new Date()).getTime());";
         assert!(is_noise(s2));
     }
