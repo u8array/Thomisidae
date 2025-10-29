@@ -8,14 +8,14 @@ This small MCP (Model Context Protocol) STDIO server binary provides controlled 
 
 Exposed tools:
 
-- `fetch_url_text` — fetches the HTML body content of a URL and returns it as plain text.
-- `fetch_page_links` — extracts unique href links from a page and returns them as text or JSON.<br>
-- `google_search` — performs a Google Programmable Search (Custom Search API) query and returns top results.<br>
+- `fetch_url_text` , fetches the HTML body content of a URL and returns it as plain text.
+- `fetch_page_links` , extracts unique href links from a page and returns them as text or JSON.<br>
+- `google_search` , performs a Google Programmable Search (Custom Search API) query and returns top results.<br>
     <sub><sup><em>Optional: Disabled by default; requires an [API key](https://docs.cloud.google.com/docs/authentication/api-keys?hl=en#create).</em></sup></sub>
 
 ## Why this tool?
 
-Yes—there is an official MCP “fetch” server. Thomisidae exists for a slightly different set of trade‑offs and priorities:
+Yes,there is an official MCP “fetch” server. Thomisidae exists for a slightly different set of trade‑offs and priorities:
 
 - Single self‑contained binary (Rust), zero runtime dependencies: fast startup, low memory, easy to audit and deploy.
 - Defense‑in‑depth and policy controls built in: robots.txt respected by default, allow/deny domain lists, response size caps, and strict timeouts.
@@ -25,12 +25,12 @@ Yes—there is an official MCP “fetch” server. Thomisidae exists for a sligh
 
 When to choose what?
 - Prefer the official MCP fetch server if you want the canonical, minimal reference implementation.
-- Choose Thomisidae if you need stricter controls (robots, domain policy, caps), richer extraction/output modes, link harvesting, or an easy single‑binary deploy—especially on Windows.
+- Choose Thomisidae if you need stricter controls (robots, domain policy, caps), richer extraction/output modes, link harvesting, or an easy single‑binary deploy,especially on Windows.
 
 Fair comparison and ecosystem notes:
 - The official server is quick to try via uv or pip and converts HTML→Markdown out of the box; per its docs, installing Node.js enables a more robust HTML simplifier. If you’re already on Python and want a minimal fetch→Markdown pipeline, it’s an excellent choice.
 - Link harvesting itself isn’t CPU‑heavy. Thomisidae’s value here is the packaging and policy: normalization + de‑duplication, optional same‑domain filtering, and the ability to run everything from a single static binary with robots/domain policy enforcement.
-- Reference: Official MCP fetch server — https://github.com/modelcontextprotocol/servers/tree/main/src/fetch/
+- Reference: Official MCP fetch server , https://github.com/modelcontextprotocol/servers/tree/main/src/fetch/
 
 Clients that implement the open Model Context Protocol (MCP) can launch and call external tools. This repository provides a small, auditable bridge that allows models to retrieve web content. LM Studio is one such MCP client and is used below as an example.
 
