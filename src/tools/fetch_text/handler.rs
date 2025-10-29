@@ -101,7 +101,10 @@ impl ToolHandler for FetchTextHandler {
                 format!("URL: {}\n\n", url)
             };
             let clean = sanitize_html(&body);
-            let extracted = html2md::parse_html(&clean);
+            let extracted = match htmd::convert(&clean) {
+                Ok(md) => md,
+                Err(_) => clean,
+            };
             let text = prefix + &extracted;
             return Ok(text_tool_result(truncate_with_hint(&text, start_index, max_length)));
         } else {
