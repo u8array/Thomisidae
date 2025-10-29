@@ -1,4 +1,5 @@
 pub mod fetch_links;
+// legacy file-based module remains, route new code through fetch_text_new
 pub mod fetch_text;
 pub mod meta;
 pub mod utils;

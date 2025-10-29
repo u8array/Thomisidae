@@ -40,6 +40,8 @@ pub struct Config {
     #[serde(default)]
     pub robots: RobotsConfig,
     #[serde(default)]
+    pub http: HttpConfig,
+    #[serde(default)]
     pub allowed_domains: Vec<String>,
     #[serde(default)]
     pub blocked_domains: Vec<String>,
@@ -101,10 +103,19 @@ impl Default for Config {
             features: HashMap::new(),
             google_search: None,
             robots: RobotsConfig::default(),
+            http: HttpConfig::default(),
             allowed_domains: Vec::new(),
             blocked_domains: Vec::new(),
             max_response_size: default_max_response_size(),
             timeout_ms: default_timeout_ms(),
         }
     }
+}
+
+#[derive(Debug, Clone, Deserialize, Default)]
+pub struct HttpConfig {
+    #[serde(default)]
+    pub user_agent: Option<String>,
+    #[serde(default)]
+    pub proxy_url: Option<String>,
 }
