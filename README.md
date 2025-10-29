@@ -15,7 +15,7 @@ Exposed tools:
 
 ## Why this tool?
 
-Yes,there is an official MCP “fetch” server. Thomisidae exists for a slightly different set of trade‑offs and priorities:
+Yes, there is an official MCP “fetch” server. Thomisidae exists for a slightly different set of trade‑offs and priorities:
 
 - Single self‑contained binary (Rust), zero runtime dependencies: fast startup, low memory, easy to audit and deploy.
 - Defense‑in‑depth and policy controls built in: robots.txt respected by default, allow/deny domain lists, response size caps, and strict timeouts.
