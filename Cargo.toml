@@ -2,6 +2,7 @@
 name = "thomisidae"
 version = "0.1.0"
 edition = "2024"
+autobenches = false
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
@@ -32,10 +33,4 @@ readability = ["dep:readability"]
 version = "0.2"
 optional = true
 
-[dev-dependencies]
-criterion = "0.5"
-
-[[bench]]
-name = "extract_bench"
-harness = false
-path = "benches/extract_bench.rs"
+ 
