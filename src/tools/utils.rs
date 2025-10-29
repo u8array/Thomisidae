@@ -1,5 +1,6 @@
 use mcp_protocol_sdk::prelude::*;
 use reqwest::Client;
+use reqwest::header::CONTENT_TYPE;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
@@ -66,6 +67,65 @@ pub async fn fetch_html(client: &Client, url: &str, max_response_size: usize) ->
 
     let text = String::from_utf8_lossy(&out).into_owned();
     Ok(text)
+}
+
+#[derive(Debug, Clone)]
+pub struct FetchedResponse {
+    pub body: String,
+    pub content_type: Option<String>,
+}
+
+pub async fn fetch_html_with_headers(client: &Client, url: &str, max_response_size: usize) -> McpResult<FetchedResponse> {
+    let parsed = Url::parse(url).map_err(|e| McpError::validation(format!("Invalid url: {e}")))?;
+    if !matches!(parsed.scheme(), "http" | "https") {
+        return Err(McpError::validation(format!(
+            "Unsupported URL scheme: {} (only http/https allowed)", parsed.scheme()
+        )));
+    }
+
+    if let Some(host) = parsed.host_str()
+        && let Ok(ip) = host.parse::<IpAddr>()
+        && !is_global_ip(ip)
+    {
+        return Err(McpError::validation("URL host resolves to a non-global IP (blocked)".to_string()));
+    }
+
+    let resp = client
+        .get(url)
+        .send()
+        .await
+        .map_err(|e| McpError::internal(e.to_string()))?;
+
+    if let Some(len) = resp.content_length()
+        && (len as usize > max_response_size)
+    {
+        return Err(McpError::validation(format!(
+            "Response too large: {len} bytes (max {max_response_size})"
+        )));
+    }
+
+    let ct = resp
+        .headers()
+        .get(CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.to_string());
+
+    let mut total: usize = 0;
+    let mut out = Vec::with_capacity(64 * 1024);
+    let mut stream = resp.bytes_stream();
+    while let Some(chunk_res) = stream.next().await {
+        let chunk = chunk_res.map_err(|e| McpError::internal(e.to_string()))?;
+        total = total.saturating_add(chunk.len());
+        if total > max_response_size {
+            return Err(McpError::validation(format!(
+                "Response exceeded limit ({max_response_size} bytes)"
+            )));
+        }
+        out.extend_from_slice(&chunk);
+    }
+
+    let body = String::from_utf8_lossy(&out).into_owned();
+    Ok(FetchedResponse { body, content_type: ct })
 }
 
 fn is_global_ip(ip: IpAddr) -> bool {
