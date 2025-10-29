@@ -130,8 +130,9 @@ pub fn format_block(name: &str, normalized: String) -> String {
 }
 
 #[cfg(feature = "readability")]
-pub fn extract_readability(html: &str) -> Option<String> {
-    match readability::extractor::extract(html, &Default::default()) {
+pub fn extract_readability(html: &str, base_url: &url::Url) -> Option<String> {
+    let mut cursor = std::io::Cursor::new(html.as_bytes());
+    match readability::extractor::extract(&mut cursor, base_url) {
         Ok(article) => Some(article.content),
         Err(_) => None,
     }

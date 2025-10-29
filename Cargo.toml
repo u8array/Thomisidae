@@ -38,3 +38,4 @@ criterion = "0.5"
 [[bench]]
 name = "extract_bench"
 harness = false
+path = "benches/extract_bench.rs"

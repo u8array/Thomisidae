@@ -114,7 +114,7 @@ impl ToolHandler for FetchTextHandler {
             };
             let extracted = match mode.to_ascii_lowercase().as_str() {
                 #[cfg(feature = "readability")]
-                "readability" => extract_readability(&plain_html).unwrap_or_else(|| extract_best_blocks(&doc).unwrap_or_else(|| extract_fallback_blocks(&doc)).join("\n")),
+                "readability" => extract_readability(&plain_html, &parsed).unwrap_or_else(|| extract_best_blocks(&doc).unwrap_or_else(|| extract_fallback_blocks(&doc)).join("\n")),
                 _ => extract_best_blocks(&doc).unwrap_or_else(|| extract_fallback_blocks(&doc)).join("\n"),
             };
             let text = prefix + &extracted;
