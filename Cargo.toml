@@ -29,7 +29,7 @@ default = []
 readability = ["dep:readability"]
 
 [dependencies.readability]
-version = "0.2"
+version = "0.3"
 optional = true
 
  
