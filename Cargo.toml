@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 reqwest = { version = "0.12", features = ["json", "gzip", "brotli", "stream"] }
-scraper = "0.24"
+scraper = "0.25"
 anyhow = "1"
 serde = { version = "1", features = ["derive"] }
 mcp-protocol-sdk = "0.5"
